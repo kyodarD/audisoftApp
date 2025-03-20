@@ -1,0 +1,28 @@
+
+
+/* Navbar personalizado con fondo #a3e635 */
+nav {
+    background-color: #a3e635 !important;
+}
+
+nav a {
+    color: #2c3e50; /* Texto oscuro para un buen contraste */
+    padding: 10px 15px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+nav a:hover {
+    background-color: #7cb342 !important; /* Un verde más oscuro al pasar el cursor */
+    color: white; /* Cambiar color de texto al pasar el cursor */
+    border-radius: 5px;
+}
+
+.navbar-brand {
+    color: #2c3e50;
+    font-size: 24px;
+}
+
+.navbar-brand:hover {
+    color: white; /* Cambiar color al pasar el cursor */
+}
