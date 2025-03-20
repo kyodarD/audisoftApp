@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audysoftw</title>
    
-
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,14 +15,14 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
 
     <!-- Libraries Stylesheet -->
-    <link href="{{ asset('frontend/lib/owlcarousel/assets/owl.carousel.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('frontend/lib/lightbox/css/lightbox.min.css') }}" rel="stylesheet">
+    <link href="{{ secure_asset('frontend/lib/owlcarousel/assets/owl.carousel.min.css') }}" rel="stylesheet">
+    <link href="{{ secure_asset('frontend/lib/lightbox/css/lightbox.min.css') }}" rel="stylesheet">
 
     <!-- Customized Bootstrap Stylesheet -->
-    <link href="{{ asset('frontend/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ secure_asset('frontend/css/bootstrap.min.css') }}" rel="stylesheet">
 
     <!-- Template Stylesheet -->
-    <link href="{{ asset('frontend/css/style.css') }}" rel="stylesheet">
+    <link href="{{ secure_asset('frontend/css/style.css') }}" rel="stylesheet">
 </head>
 <body>
 
@@ -59,15 +58,15 @@
             </div>
         </div>
     </nav>
-    <img src="frontend/css/iconaudysoftw.png" alt="Audysoftw Logo" class="image-below-navbar">
+    <img src="{{ secure_asset('frontend/css/iconaudysoftw.png') }}" alt="Audysoftw Logo" class="image-below-navbar">
 
     <!-- Scripts necesarios -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
-    <script src="{{ asset('frontend/lib/owlcarousel/owl.carousel.min.js') }}"></script>
-    <script src="{{ asset('frontend/lib/lightbox/js/lightbox.min.js') }}"></script>
+    <script src="{{ secure_asset('frontend/lib/owlcarousel/owl.carousel.min.js') }}"></script>
+    <script src="{{ secure_asset('frontend/lib/lightbox/js/lightbox.min.js') }}"></script>
 
     <!-- Template Javascript -->
-    <script src="{{ asset('frontend/js/main.js') }}"></script>
+    <script src="{{ secure_asset('frontend/js/main.js') }}"></script>
 </body>
 </html>
