@@ -6,7 +6,7 @@
     <div class="register-box">
         <div class="card card-outline card-primary">
             <div class="card-header text-center">
-                <img src="{{ asset('backend/dist/img/logo_univ.png') }}" alt="">
+                <img src="{{ secure_asset('backend/dist/img/logo_univ.png') }}" alt="Logo">
             </div>
             <div class="card-body">
                 <p class="login-box-msg">{{ __('Register') }}</p>
