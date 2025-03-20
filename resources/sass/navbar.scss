@@ -1,29 +1,28 @@
-
-
-/* Navbar personalizado con fondo #a3e635 */
+/* Navbar personalizado con fondo verde oscuro */
 nav {
-    // background-color: #a3e635 !important;
-    background-color: #903aaa !important;
+    background-color: #1B5E20 !important; /* Verde oscuro elegante */
 }
 
 nav a {
-    color: #2c3e50; /* Texto oscuro para un buen contraste */
+    color: #ffffff; /* Texto blanco para mejor legibilidad */
     padding: 10px 15px;
     text-decoration: none;
     font-weight: bold;
+    transition: background-color 0.3s ease-in-out;
 }
 
 nav a:hover {
-    background-color: #7cb342 !important; /* Un verde más oscuro al pasar el cursor */
-    color: white; /* Cambiar color de texto al pasar el cursor */
+    background-color: #2E7D32 !important; /* Un verde un poco más claro al pasar el cursor */
+    color: #f8f9fa; /* Color claro para texto */
     border-radius: 5px;
 }
 
 .navbar-brand {
-    color: #2c3e50;
+    color: #ffffff; /* Texto blanco para buen contraste */
     font-size: 24px;
+    font-weight: bold;
 }
 
 .navbar-brand:hover {
-    color: white; /* Cambiar color al pasar el cursor */
+    color: #c8e6c9; /* Verde muy claro para efecto sutil */
 }

@@ -1249,7 +1249,7 @@
 
 /* Estilo para el navbar */
 .navbar {
-    background-color:#a3e635; /* Fondo blanco */
+    background-color:#dfdfdf; /* Fondo blanco */
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px; /* Bordes redondeados */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
