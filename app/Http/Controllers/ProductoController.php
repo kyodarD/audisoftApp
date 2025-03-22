@@ -87,6 +87,17 @@ class ProductoController extends Controller
         }
     }
 
+    public function show(Producto $producto)
+{
+    try {
+        return view('productos.show', compact('producto'));
+    } catch (Exception $e) {
+        Log::error('Error al mostrar el producto: ' . $e->getMessage());
+        return redirect()->route('productos.index')->withErrors('No se pudo mostrar el detalle del producto.');
+    }
+}
+
+
     public function destroy(Producto $producto)
     {
         try {
