@@ -48,9 +48,15 @@ Route::group(['middleware' => ['auth', 'verified']], function() {
     // PRODUCTOS
     Route::resource('productos', ProductoController::class);
     Route::get('cambioestadoproducto', [ProductoController::class, 'cambioestadoproducto'])->name('cambioestadoproducto');
+    Route::get('productos/info/{id}', [ProductoController::class, 'getInfo'])->name('productos.info');
 
     // PROVEEDORES
-    Route::resource('proveedores', ProveedorController::class); 
+  // Rutas RESTful de proveedores con nombre de parámetro corregido
+    Route::resource('proveedores', ProveedorController::class)->parameters([
+        'proveedores' => 'proveedor'
+    ]);
+
+
     Route::get('cambioestadoproveedor', [ProveedorController::class, 'cambioestadoproveedor'])->name('cambioestadoproveedor');
 
     // CLIENTES

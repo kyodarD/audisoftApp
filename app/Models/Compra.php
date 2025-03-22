@@ -9,31 +9,39 @@ class Compra extends Model
 {
     use HasFactory;
 
+    protected $table = 'compras';
+
     protected $fillable = [
-        'total_compra',
+        'proveedor_id',
         'fecha_compra',
+        'total_compra',
+        'descuento_compra',
+        'estado_compra',
         'estado',
         'registradopor',
-        'cliente_id', // Agregado para permitir asignar el cliente asociado
     ];
 
-    // Relación muchos a muchos con productos
-    public function productos()
+    protected $casts = [
+        'fecha_compra' => 'datetime',
+        'total_compra' => 'decimal:2',
+        'descuento_compra' => 'decimal:2',
+    ];
+
+    // Relación con el proveedor
+    public function proveedor()
     {
-        return $this->belongsToMany(Producto::class, 'compra_producto')
-                    ->withPivot('cantidad_producto', 'precio_unitario_producto')
-                    ->withTimestamps();
+        return $this->belongsTo(Proveedor::class);
     }
 
     // Relación con el usuario que registró la compra
-    public function usuario()
+    public function registrador()
     {
         return $this->belongsTo(User::class, 'registradopor');
     }
 
-    // Nueva relación con el modelo Cliente
-    public function cliente()
+    // Relación con los detalles de la compra (productos comprados)
+    public function detalles()
     {
-        return $this->belongsTo(Cliente::class, 'cliente_id'); // Asociar la columna cliente_id con el modelo Cliente
+        return $this->hasMany(DetalleCompra::class, 'compra_id');
     }
 }

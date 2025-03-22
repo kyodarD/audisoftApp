@@ -3,91 +3,124 @@
 namespace App\Http\Controllers;
 
 use App\Models\Producto;
-use App\Models\Compra; // Importación del modelo Compra
-use App\Models\Cliente; // Importación del modelo Cliente
-use App\Http\Requests\CompraRequest; // Importación del request de validación
+use App\Models\Compra;
+use App\Models\Proveedor;
+use App\Models\DetalleCompra;
+use App\Http\Requests\CompraRequest;
 use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
-use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Exception;
 
 class CompraController extends Controller
 {
-    // Muestra todas las compras
     public function index()
     {
-        $compras = Compra::with('usuario', 'cliente')->get(); // Obtener todas las compras con usuarios y clientes relacionados
-        $clientes = Cliente::all();
+        $compras = Compra::all();
+        $proveedores = Proveedor::all();
         $productos = Producto::all();
-        // Pasamos tanto las compras como los clientes y productos a la vista
-        return view('compras.index', compact('compras', 'clientes', 'productos'));
+
+        return view('compras.index', compact('compras', 'proveedores', 'productos'));
     }
 
-    // Muestra el formulario para crear una nueva compra
     public function create()
     {
-        // Obtener todos los clientes y productos para el formulario de creación
-        $clientes = Cliente::all();
+        $proveedores = Proveedor::all();
         $productos = Producto::all();
-        // Pasamos los clientes y productos a la vista de creación
-        return view('compras.create', compact('clientes', 'productos'));
+
+        return view('compras.create', compact('proveedores', 'productos'));
     }
 
-    // Almacena una nueva compra en la base de datos
     public function store(CompraRequest $request)
     {
-        // Validación de los datos con el CompraRequest
         $validated = $request->validated();
+
         try {
-            // Asignar el usuario autenticado al campo 'registradopor'
-            $validated['registradopor'] = auth()->user()->id; // ID del usuario autenticado
-            
-            // Crear la nueva compra con los datos validados
-            $compra = Compra::create($validated);
-            
-            // Registrar los productos comprados
-            foreach ($validated['productos'] as $producto) {
-                $compra->productos()->attach($producto['id'], ['cantidad_producto' => $producto['cantidad']]);
+            DB::beginTransaction();
+
+            $validated['registradopor'] = auth()->id();
+
+            $compra = Compra::create([
+                'proveedor_id' => $validated['proveedor_id'],
+                'fecha_compra' => $validated['fecha_compra'],
+                'total_compra' => $validated['total_compra'],
+                'descuento_compra' => $validated['descuento_compra'] ?? 0,
+                'estado_compra' => $validated['estado_compra'] ?? 'pendiente',
+                'estado' => $validated['estado'],
+                'registradopor' => $validated['registradopor'],
+            ]);
+
+            foreach ($validated['detalles'] as $detalle) {
+                $compra->detalles()->create([
+                    'producto_id' => $detalle['producto_id'],
+                    'cantidad' => $detalle['cantidad'],
+                    'precio_unitario' => $detalle['precio_unitario'],
+                    'subtotal' => $detalle['subtotal'],
+                    'registradopor' => $validated['registradopor'],
+                ]);
+
+                // Aumentar el stock del producto
+                Producto::where('id', $detalle['producto_id'])->increment('stock', $detalle['cantidad']);
             }
+
+            DB::commit();
+
             return redirect()->route('compras.index')->with('successMsg', 'La compra se registró exitosamente');
         } catch (Exception $e) {
+            DB::rollBack();
             Log::error('Error al guardar la compra: ' . $e->getMessage());
             return redirect()->route('compras.index')->withErrors('Ocurrió un error al guardar la compra. Inténtelo nuevamente.');
         }
     }
 
-    // Muestra el formulario para editar una compra existente
     public function edit(Compra $compra)
     {
-        // Obtener todos los clientes y productos para el formulario de edición
-        $clientes = Cliente::all();
+        $proveedores = Proveedor::all();
         $productos = Producto::all();
-        // Pasar la compra, los clientes y los productos a la vista de edición
-        return view('compras.edit', compact('compra', 'clientes', 'productos'));
+
+        return view('compras.edit', compact('compra', 'proveedores', 'productos'));
     }
 
-    // Actualiza una compra existente
     public function update(CompraRequest $request, Compra $compra)
     {
-        // Validación de los datos con el CompraRequest
         $validated = $request->validated();
+
         try {
-            // Actualizar los datos de la compra
-            $compra->update($validated);
-            
-            // Actualizar los productos asociados
-            $compra->productos()->detach(); // Desvincular productos actuales
-            foreach ($validated['productos'] as $producto) {
-                $compra->productos()->attach($producto['id'], ['cantidad_producto' => $producto['cantidad']]);
+            DB::beginTransaction();
+
+            $compra->update([
+                'proveedor_id' => $validated['proveedor_id'],
+                'fecha_compra' => $validated['fecha_compra'],
+                'total_compra' => $validated['total_compra'],
+                'descuento_compra' => $validated['descuento_compra'] ?? 0,
+                'estado_compra' => $validated['estado_compra'] ?? 'pendiente',
+                'estado' => $validated['estado'],
+            ]);
+
+            // Eliminar detalles antiguos
+            $compra->detalles()->delete();
+
+            foreach ($validated['detalles'] as $detalle) {
+                $compra->detalles()->create([
+                    'producto_id' => $detalle['producto_id'],
+                    'cantidad' => $detalle['cantidad'],
+                    'precio_unitario' => $detalle['precio_unitario'],
+                    'subtotal' => $detalle['subtotal'],
+                    'registradopor' => auth()->id(),
+                ]);
             }
+
+            DB::commit();
+
             return redirect()->route('compras.index')->with('successMsg', 'La compra se actualizó exitosamente');
         } catch (Exception $e) {
+            DB::rollBack();
             Log::error('Error al actualizar la compra: ' . $e->getMessage());
             return redirect()->route('compras.index')->withErrors('Ocurrió un error al actualizar la compra. Inténtelo nuevamente.');
         }
     }
 
-    // Elimina una compra
     public function destroy(Compra $compra)
     {
         try {
@@ -102,18 +135,25 @@ class CompraController extends Controller
         }
     }
 
-    // Cambia el estado de una compra (si es necesario)
+    public function show($id)
+    {
+        $compra = Compra::with('detalles.producto')->findOrFail($id);
+
+        return view('compras.show', compact('compra'));
+    }
+
     public function cambioEstadoCompra(Request $request)
     {
         try {
             $compra = Compra::findOrFail($request->id);
-            // Validar el campo estado_compra
+
             $request->validate([
-                'estado_compra' => 'nullable|in:pendiente,pagado', // Ejemplo de estados
+                'estado_compra' => 'nullable|in:pendiente,pagado,cancelado',
             ]);
-            // Actualizar el estado de la compra
-            $compra->estado = $request->estado_compra; // Cambiar el campo estado
+
+            $compra->estado_compra = $request->estado_compra;
             $compra->save();
+
             return response()->json(['success' => true, 'message' => 'Estado actualizado correctamente.']);
         } catch (Exception $e) {
             Log::error('Error al cambiar el estado de la compra: ' . $e->getMessage());

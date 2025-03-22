@@ -101,6 +101,22 @@ class ProductoController extends Controller
         }
     }
 
+    public function getInfo($id)
+    {
+        $producto = Producto::find($id);
+
+        if (!$producto) {
+            return response()->json(['error' => 'Producto no encontrado'], 404);
+        }
+
+        return response()->json([
+            'precio' => $producto->precio,
+            'stock' => $producto->stock,
+        ]);
+    }
+
+
+
     public function cambioestadoproducto(Request $request)
     {
         try {

@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'Detalle de Venta')
+@section('title', 'Detalle de Compra')
 
 @section('content')
 <div class="content-wrapper">
     <section class="content-header">
         <div class="container-fluid">
-            <h1>Detalle de Venta</h1>
+            <h1>Detalle de Compra</h1>
         </div>
     </section>
 
@@ -19,20 +19,20 @@
                     <div class="card">
 
                         <div class="card-header bg-secondary">
-                            <h3 class="card-title">Venta #{{ $venta->id }} - {{ $venta->cliente->nombre ?? 'Sin cliente' }}</h3>
+                            <h3 class="card-title">Compra #{{ $compra->id }} - {{ $compra->proveedor->nombre ?? 'Sin proveedor' }}</h3>
                         </div>
 
                         <div class="card-body">
                             <div class="row">
-                                <!-- Info de la venta -->
+                                <!-- Info de la compra -->
                                 <div class="col-lg-6 col-sm-12">
-                                    <p><strong>Fecha de Venta:</strong> {{ \Carbon\Carbon::parse($venta->fecha_venta)->format('d/m/Y') }}</p>
-                                    <p><strong>Total Venta:</strong> ${{ number_format($venta->total_venta, 2) }}</p>
-                                    <p><strong>Descuento:</strong> {{ $venta->descuento_venta ?? 0 }} %</p>
-                                    <p><strong>Estado de la Venta:</strong>
-                                        @if($venta->estado_venta == 'pagado')
+                                    <p><strong>Fecha de Compra:</strong> {{ \Carbon\Carbon::parse($compra->fecha_compra)->format('d/m/Y') }}</p>
+                                    <p><strong>Total Compra:</strong> ${{ number_format($compra->total_compra, 2) }}</p>
+                                    <p><strong>Descuento:</strong> {{ $compra->descuento_compra ?? 0 }} %</p>
+                                    <p><strong>Estado de la Compra:</strong>
+                                        @if($compra->estado_compra == 'pagado')
                                             <span class="badge badge-success">Pagado</span>
-                                        @elseif($venta->estado_venta == 'pendiente')
+                                        @elseif($compra->estado_compra == 'pendiente')
                                             <span class="badge badge-warning">Pendiente</span>
                                         @else
                                             <span class="badge badge-danger">Cancelado</span>
@@ -42,7 +42,7 @@
 
                                 <!-- Detalles de productos -->
                                 <div class="col-lg-6 col-sm-12">
-                                    <h4>Productos Vendidos</h4>
+                                    <h4>Productos Comprados</h4>
                                     <table class="table table-bordered">
                                         <thead>
                                             <tr>
@@ -53,7 +53,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @forelse($venta->detalles as $detalle)
+                                            @forelse($compra->detalles as $detalle)
                                             <tr>
                                                 <td>{{ $detalle->producto->nombre ?? 'N/A' }}</td>
                                                 <td>{{ $detalle->cantidad }}</td>
@@ -62,7 +62,7 @@
                                             </tr>
                                             @empty
                                             <tr>
-                                                <td colspan="4" class="text-center text-muted">No hay productos en esta venta.</td>
+                                                <td colspan="4" class="text-center text-muted">No hay productos en esta compra.</td>
                                             </tr>
                                             @endforelse
                                         </tbody>
@@ -72,7 +72,7 @@
                         </div>
 
                         <div class="card-footer">
-                            <a href="{{ route('ventas.index') }}" class="btn btn-secondary">Volver al Listado</a>
+                            <a href="{{ route('compras.index') }}" class="btn btn-secondary">Volver al Listado</a>
                         </div>
 
                     </div>
