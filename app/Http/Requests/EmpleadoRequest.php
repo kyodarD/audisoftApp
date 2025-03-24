@@ -13,23 +13,28 @@ class EmpleadoRequest extends FormRequest
 
     public function rules(): array
     {
+        $empleadoId = $this->route('empleado'); // null en store, ID en update
+
         return [
-            'nombre'            => 'required|string|max:255',
-            'cedula'            => 'required|string|max:20|unique:empleados,cedula',
+            'nombre'            => $empleadoId ? 'sometimes|string|max:255' : 'required|string|max:255',
+            'cedula'            => $empleadoId
+                                    ? 'sometimes|string|max:20|unique:empleados,cedula,' . $empleadoId
+                                    : 'required|string|max:20|unique:empleados,cedula',
             'telefono'          => 'required|string|max:15',
-            'email'             => 'required|email|max:255|unique:empleados,email',
+            'email'             => $empleadoId
+                                    ? 'sometimes|email|max:255|unique:empleados,email,' . $empleadoId
+                                    : 'required|email|max:255|unique:empleados,email',
             'direccion'         => 'nullable|string|max:255',
             'cargo'             => 'required|string|max:100',
             'salario'           => 'required|numeric|min:0',
             'estado'            => 'required|in:activo,inactivo',
 
-            // Nuevas relaciones
             'pais_id'           => 'required|exists:paises,id',
             'departamento_id'   => 'required|exists:departamentos,id',
             'ciudad_id'         => 'required|exists:ciudads,id',
 
-            'user_id'           => 'required|exists:users,id',
-            'registradopor'     => 'required|exists:users,id',
+            'user_id'           => $empleadoId ? 'sometimes|exists:users,id' : 'required|exists:users,id',
+            'registradopor'     => $empleadoId ? 'nullable' : 'required|exists:users,id',
             'role_id'           => 'nullable|exists:roles,id',
             'photo'             => 'nullable|image|max:8048',
         ];

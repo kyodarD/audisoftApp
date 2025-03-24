@@ -3,7 +3,6 @@
 @section('title', 'Crear Nuevo Empleado')
 
 @section('content')
-
 <div class="content-wrapper">
     <section class="content-header">
         <div class="container-fluid"></div>
@@ -22,6 +21,9 @@
                         <div class="card-body">
                             <form action="{{ route('empleados.store') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
+
+                                <!-- Campo oculto registradopor -->
+                                <input type="hidden" name="registradopor" value="{{ auth()->id() }}">
 
                                 <div class="row">
                                     <div class="col-md-6">
@@ -146,35 +148,40 @@
                                             @enderror
                                         </div>
 
+                                        <!-- País -->
+                                        <div class="form-group">
+                                            <label for="pais_id">País</label>
+                                            <select name="pais_id" id="pais_id" class="form-control" required>
+                                                <option value="">Seleccione un país</option>
+                                                @foreach($paises as $pais)
+                                                    <option value="{{ $pais->id }}">{{ $pais->nombre }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('pais_id')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <!-- Departamento -->
+                                        <div class="form-group">
+                                            <label for="departamento_id">Departamento</label>
+                                            <select name="departamento_id" id="departamento_id" class="form-control" required>
+                                                <option value="">Seleccione un departamento</option>
+                                            </select>
+                                            @error('departamento_id')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
                                         <!-- Ciudad -->
                                         <div class="form-group">
                                             <label for="ciudad_id">Ciudad</label>
                                             <select name="ciudad_id" id="ciudad_id" class="form-control" required>
                                                 <option value="">Seleccione una ciudad</option>
-                                                @foreach($ciudades as $ciudad)
-                                                    <option value="{{ $ciudad->id }}"
-                                                        data-departamento="{{ $ciudad->departamento->nombre ?? '' }}"
-                                                        data-pais="{{ $ciudad->departamento->pais->nombre ?? '' }}"
-                                                        {{ old('ciudad_id') == $ciudad->id ? 'selected' : '' }}>
-                                                        {{ $ciudad->nombre }}
-                                                    </option>
-                                                @endforeach
                                             </select>
                                             @error('ciudad_id')
                                                 <div class="text-danger">{{ $message }}</div>
                                             @enderror
-                                        </div>
-
-                                        <!-- Departamento (autocompletado) -->
-                                        <div class="form-group">
-                                            <label for="departamento">Departamento</label>
-                                            <input type="text" id="departamento" class="form-control" readonly>
-                                        </div>
-
-                                        <!-- País (autocompletado) -->
-                                        <div class="form-group">
-                                            <label for="pais">País</label>
-                                            <input type="text" id="pais" class="form-control" readonly>
                                         </div>
 
                                         <!-- Foto -->
@@ -202,7 +209,7 @@
     </section>
 </div>
 
-<!-- Autocompletar nombre/email del usuario y el rol -->
+<!-- Scripts para autocompletar y dependientes -->
 <script>
 document.getElementById("user_id").addEventListener("change", function () {
     let selectedUser = this.options[this.selectedIndex];
@@ -225,12 +232,47 @@ document.getElementById("user_id").addEventListener("change", function () {
     }
 });
 
-// Mostrar departamento y país al seleccionar ciudad
-document.getElementById("ciudad_id").addEventListener("change", function () {
-    let selected = this.options[this.selectedIndex];
-    document.getElementById("departamento").value = selected.getAttribute("data-departamento") || "";
-    document.getElementById("pais").value = selected.getAttribute("data-pais") || "";
+// Dropdowns dependientes
+const paisesData = @json($paises);
+const paisSelect = document.getElementById('pais_id');
+const departamentoSelect = document.getElementById('departamento_id');
+const ciudadSelect = document.getElementById('ciudad_id');
+
+paisSelect.addEventListener('change', function () {
+    const paisId = parseInt(this.value);
+    const pais = paisesData.find(p => p.id === paisId);
+
+    departamentoSelect.innerHTML = '<option value="">Seleccione un departamento</option>';
+    ciudadSelect.innerHTML = '<option value="">Seleccione una ciudad</option>';
+
+    if (pais) {
+        pais.departamentos.forEach(dep => {
+            const option = document.createElement('option');
+            option.value = dep.id;
+            option.text = dep.nombre;
+            departamentoSelect.appendChild(option);
+        });
+    }
+});
+
+departamentoSelect.addEventListener('change', function () {
+    const paisId = parseInt(paisSelect.value);
+    const depId = parseInt(this.value);
+
+    ciudadSelect.innerHTML = '<option value="">Seleccione una ciudad</option>';
+
+    const pais = paisesData.find(p => p.id === paisId);
+    if (!pais) return;
+
+    const departamento = pais.departamentos.find(d => d.id === depId);
+    if (departamento) {
+        departamento.ciudads.forEach(ciudad => {
+            const option = document.createElement('option');
+            option.value = ciudad.id;
+            option.text = ciudad.nombre;
+            ciudadSelect.appendChild(option);
+        });
+    }
 });
 </script>
-
 @endsection

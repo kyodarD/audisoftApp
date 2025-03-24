@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Permission\Models\Role;
 
 class Empleado extends Model
 {
@@ -40,9 +41,9 @@ class Empleado extends Model
     }
 
     // Relación con rol
-    public function rol()
+    public function role()
     {
-        return $this->belongsTo(\Spatie\Permission\Models\Role::class, 'role_id');
+        return $this->belongsTo(Role::class, 'role_id');
     }
 
     // Relación con ciudad
