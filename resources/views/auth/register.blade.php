@@ -6,7 +6,9 @@
     <div class="register-box">
         <div class="card card-outline card-primary">
             <div class="card-header text-center">
-                <img src="{{ asset('backend/dist/img/logo_univ.png') }}" alt="">
+                <a href="#" class="h1 d-block">
+                    <img src="{{ asset('frontend/css/iconaudysoftw.png') }}" alt="Logo" class="img-fluid" style="max-height: 100px;">
+                </a>
             </div>
             <div class="card-body">
                 <p class="login-box-msg">{{ __('Register') }}</p>
@@ -69,9 +71,9 @@
                             <button type="submit" class="btn btn-primary btn-block">{{ __('Register') }}</button>
                         </div>
                         <div class="col-8">
-                            <a href="{{ route('login') }}"
-                                    class="btn btn-success btn-block">{{ __('I already have an account') }}</a>
-                        </div>
+                            <a href="{{ route('login') }}" class="btn btn-success btn-block">
+                                {{ __('I already have an account') }}
+                            </a>
                         </div>
                     </div>
                 </form>
