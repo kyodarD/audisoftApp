@@ -2,131 +2,115 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\EmpleadoRequest;
 use App\Models\Empleado;
-use App\Models\Role;
 use App\Models\User;
-use Illuminate\Http\Request;
+use App\Models\Role;
+use App\Models\Pais;
+use App\Models\Ciudad;
+use App\Models\Departamento;
+use App\Http\Requests\EmpleadoRequest;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\QueryException;
+use Exception;
 
 class EmpleadoController extends Controller
 {
-    /**
-     * Muestra la lista de empleados.
-     */
     public function index()
     {
-        $empleados = Empleado::all();
+        $empleados = Empleado::with(['user', 'role', 'ciudad.departamento.pais'])->get();
         return view('empleados.index', compact('empleados'));
     }
 
-    /**
-     * Muestra el formulario para crear un nuevo empleado.
-     */
     public function create()
     {
-        $roles = Role::pluck('name', 'id'); // 🔹 Traemos roles con ID y Nombre
-        $usuarios = User::all();
-        return view('empleados.create', compact('roles', 'usuarios'));
+        $users = User::all();
+        $roles = Role::all();
+        $paises = Pais::with('departamentos.ciudads')->get();
+
+        return view('empleados.create', compact('users', 'roles', 'paises'));
     }
 
-    /**
-     * Almacena un nuevo empleado en la base de datos.
-     */
     public function store(EmpleadoRequest $request)
     {
-        $validatedData = $request->validated();
+        $validated = $request->validated();
 
-        // 🔹 Verificar que el usuario existe
-        $usuario = User::find($validatedData['user_id']);
-        if (!$usuario) {
-            return redirect()->route('empleados.create')->with('errorMsg', 'El usuario seleccionado no existe.');
+        try {
+            DB::beginTransaction();
+
+            $validated['registradopor'] = auth()->id();
+
+            // Subir imagen si se envía
+            if ($request->hasFile('photo')) {
+                $validated['photo'] = $request->file('photo')->store('empleados/photos', 'public');
+            }
+
+            Empleado::create($validated);
+
+            DB::commit();
+
+            return redirect()->route('empleados.index')->with('successMsg', 'El empleado fue registrado exitosamente.');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Error al guardar el empleado: ' . $e->getMessage());
+            return redirect()->route('empleados.index')->withErrors('Ocurrió un error al guardar el empleado. Inténtelo nuevamente.');
         }
-
-        // 🔹 Verificar que el rol existe y obtener su nombre
-        $role = Role::find($validatedData['role_id']);
-        if (!$role) {
-            return redirect()->route('empleados.create')->with('errorMsg', 'El rol seleccionado no existe.');
-        }
-
-        // 🔹 Crear el empleado
-        $empleado = Empleado::create($validatedData);
-
-        // 🔹 Asignar el rol al usuario usando el **NOMBRE del rol**
-        $usuario->syncRoles([$role->name]);
-
-        return redirect()->route('empleados.index')->with('successMsg', 'El empleado se guardó exitosamente.');
     }
 
-    /**
-     * Muestra el formulario para editar un empleado existente.
-     */
     public function edit(Empleado $empleado)
     {
-        $roles = Role::pluck('name', 'id'); // 🔹 Traemos roles con ID y Nombre
-        $usuarios = User::all();
-        return view('empleados.edit', compact('empleado', 'roles', 'usuarios'));
+        $users = User::all();
+        $roles = Role::all();
+        $paises = Pais::with('departamentos.ciudads')->get();
+
+        return view('empleados.edit', compact('empleado', 'users', 'roles', 'paises'));
     }
 
-    /**
-     * Actualiza un empleado existente.
-     */
     public function update(EmpleadoRequest $request, Empleado $empleado)
     {
-        $validatedData = $request->validated();
+        $validated = $request->validated();
 
-        // 🔹 Verificar que el usuario existe
-        $usuario = User::find($validatedData['user_id']);
-        if (!$usuario) {
-            return redirect()->route('empleados.edit', $empleado->id)->with('errorMsg', 'El usuario seleccionado no existe.');
+        try {
+            DB::beginTransaction();
+
+            // Reemplazar imagen si hay nueva
+            if ($request->hasFile('photo')) {
+                if ($empleado->photo && \Storage::exists('public/' . $empleado->photo)) {
+                    \Storage::delete('public/' . $empleado->photo);
+                }
+
+                $validated['photo'] = $request->file('photo')->store('empleados/photos', 'public');
+            }
+
+            $empleado->update($validated);
+
+            DB::commit();
+
+            return redirect()->route('empleados.index')->with('successMsg', 'El empleado fue actualizado exitosamente.');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Error al actualizar el empleado: ' . $e->getMessage());
+            return redirect()->route('empleados.index')->withErrors('Ocurrió un error al actualizar el empleado. Inténtelo nuevamente.');
         }
-
-        // 🔹 Verificar que el rol existe y obtener su nombre
-        $role = Role::find($validatedData['role_id']);
-        if (!$role) {
-            return redirect()->route('empleados.edit', $empleado->id)->with('errorMsg', 'El rol seleccionado no existe.');
-        }
-
-        // 🔹 Actualizar los datos del empleado
-        $empleado->update($validatedData);
-
-        // 🔹 Asignar el nuevo rol al usuario usando el **NOMBRE del rol**
-        $usuario->syncRoles([$role->name]);
-
-        return redirect()->route('empleados.index')->with('successMsg', 'El empleado se actualizó exitosamente.');
     }
 
-    /**
-     * Muestra los detalles de un empleado.
-     */
-    public function show(Empleado $empleado)
-    {
-        return view('empleados.show', compact('empleado'));
-    }
-
-    /**
-     * Elimina un empleado.
-     */
     public function destroy(Empleado $empleado)
     {
         try {
             $empleado->delete();
-            return redirect()->route('empleados.index')->with('successMsg', 'El empleado se eliminó exitosamente.');
-        } catch (\Exception $e) {
-            return redirect()->route('empleados.index')->with('errorMsg', 'Ocurrió un error al eliminar el empleado.');
+            return redirect()->route('empleados.index')->with('successMsg', 'El empleado fue eliminado exitosamente.');
+        } catch (QueryException $e) {
+            Log::error('Error al eliminar el empleado: ' . $e->getMessage());
+            return redirect()->route('empleados.index')->withErrors('No se puede eliminar este empleado porque tiene información relacionada.');
+        } catch (Exception $e) {
+            Log::error('Error inesperado al eliminar el empleado: ' . $e->getMessage());
+            return redirect()->route('empleados.index')->withErrors('Ocurrió un error inesperado. Comuníquese con el Administrador.');
         }
     }
 
-    /**
-     * Cambia el estado de un empleado (activo/inactivo).
-     */
-    public function cambioestadoempleado(Request $request)
+    public function show(Empleado $empleado)
     {
-        $empleado = Empleado::find($request->id);
-        if ($empleado) {
-            $empleado->estado = $request->estado;
-            $empleado->save();
-            return response()->json(['success' => 'Estado actualizado correctamente.']);
-        }
-        return response()->json(['error' => 'Empleado no encontrado.'], 404);
+        $empleado->load('user', 'ciudad.departamento.pais', 'role');
+        return view('empleados.show', compact('empleado'));
     }
 }

@@ -1,7 +1,7 @@
 <?php
+
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -19,7 +19,12 @@ class DatabaseSeeder extends Seeder
 
         // Llamar al seeder que crea el usuario administrador
         $this->call(AdminUserSeeder::class);
-        // $this -> call (TestUserSeeder:: class);
-        
+
+        // Seeders de datos geográficos
+        $this->call([
+            PaisesSeeder::class,
+            DepartamentosSeeder::class,
+            CiudadsSeeder::class,
+        ]);
     }
 }

@@ -2,16 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Spatie\Permission\Traits\HasRoles; // Agregar el trait para manejar roles y permisos
 
 class Empleado extends Model
 {
-    use HasRoles; // Usar el trait de Spatie para asignar roles y permisos
-
-    protected $table = 'empleados';
+    use HasFactory;
 
     protected $fillable = [
         'nombre',
@@ -22,47 +18,48 @@ class Empleado extends Model
         'cargo',
         'salario',
         'estado',
+        'pais_id',
+        'departamento_id',
+        'ciudad_id',
+        'user_id',
         'registradopor',
-        'user_id', // Relación con la tabla users
-        'photo', // Para la imagen del empleado
+        'role_id',
+        'photo',
     ];
 
-    protected $guarded = [];
-
-    /**
-     * Relación con el modelo Usuario.
-     * Un empleado pertenece a un usuario.
-     */
-    public function usuario(): BelongsTo
+    // Relación con usuario asignado al empleado
+    public function user()
     {
-        return $this->belongsTo('App\Models\User', 'user_id');
+        return $this->belongsTo(User::class);
     }
 
-    /**
-     * Relación con el modelo Venta.
-     * Un empleado puede tener muchas ventas.
-     */
-    public function ventas(): HasMany
+    // Relación con el usuario que registró al empleado
+    public function registradoPor()
     {
-        return $this->hasMany('App\Models\Venta', 'empleado_id');
+        return $this->belongsTo(User::class, 'registradopor');
     }
 
-    /**
-     * Relación con el modelo User (registradopor).
-     * Un empleado es registrado por un usuario (admin).
-     */
-    public function registrador(): BelongsTo
+    // Relación con rol
+    public function rol()
     {
-        return $this->belongsTo('App\Models\User', 'registradopor');
+        return $this->belongsTo(\Spatie\Permission\Models\Role::class, 'role_id');
     }
 
-    /**
-     * Relación con los roles (Spatie).
-     * Un empleado puede tener varios roles.
-     */
-    public function roles()
+    // Relación con ciudad
+    public function ciudad()
     {
-        return $this->belongsToMany(\Spatie\Permission\Models\Role::class, 'model_has_roles', 'model_id', 'role_id')
-                    ->where('model_type', Empleado::class); // Asegura que el model_type sea Empleado
+        return $this->belongsTo(Ciudad::class);
+    }
+
+    // Relación con departamento
+    public function departamento()
+    {
+        return $this->belongsTo(Departamento::class);
+    }
+
+    // Relación con país
+    public function pais()
+    {
+        return $this->belongsTo(Pais::class);
     }
 }

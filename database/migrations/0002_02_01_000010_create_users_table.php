@@ -8,8 +8,6 @@ return new class extends Migration
 {
     /**
      * Ejecuta las migraciones.
-     *
-     * @return void
      */
     public function up(): void
     {
@@ -20,40 +18,42 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('estado')->default('1');  // Estado activo o inactivo
+            $table->string('estado')->default('1'); // Estado activo o inactivo
+            $table->string('photo')->nullable(); // Foto de perfil
             $table->rememberToken();
-            // Asegúrate de que 'role_id' sea unsignedBigInteger para coincidir con la columna 'id' de 'roles'
-            $table->unsignedBigInteger('role_id')->nullable()->constrained('roles')->onDelete('set null'); // Relación con la tabla 'roles'
             $table->timestamps();
+
+            // Relación con roles (asegúrate que la tabla roles exista antes)
+            $table->foreignId('role_id')
+                  ->nullable()
+                  ->constrained('roles')
+                  ->onDelete('set null');
         });
 
         // Crear la tabla 'password_reset_tokens'
         Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email'); // Usar solo email en lugar de hacerla primary
+            $table->string('email');
             $table->string('token');
             $table->timestamp('created_at')->nullable();
-            $table->primary(['email', 'token']); // Asegura que cada combinación de email y token sea única
+            $table->primary(['email', 'token']);
         });
 
         // Crear la tabla 'sessions'
         Schema::create('sessions', function (Blueprint $table) {
-            $table->string('id')->primary(); // ID como clave primaria
-            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null'); // Establecer la relación con la tabla 'users'
-            $table->string('ip_address', 45)->nullable(); // Dirección IP con tamaño adecuado para IPv6
-            $table->text('user_agent')->nullable(); // Agente de usuario
-            $table->longText('payload'); // Información sobre la sesión
-            $table->integer('last_activity')->index(); // Indicar el último momento de actividad
+            $table->string('id')->primary();
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->string('ip_address', 45)->nullable();
+            $table->text('user_agent')->nullable();
+            $table->longText('payload');
+            $table->integer('last_activity')->index();
         });
     }
 
     /**
      * Revierte las migraciones.
-     *
-     * @return void
      */
     public function down(): void
     {
-        // Eliminar las tablas cuando se revierten las migraciones
         Schema::dropIfExists('sessions');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('users');

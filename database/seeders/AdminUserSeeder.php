@@ -22,12 +22,12 @@ class AdminUserSeeder extends Seeder
 
         // Crear el usuario administrador si no existe
         $adminUser = User::firstOrCreate(
-            ['email' => 'admin@admin.com'], // Cambia esto si lo deseas
+            ['email' => 'admin@admin.com'], 
             [
                 'name' => 'Super Admin',
-                'password' => Hash::make('admin123456'), // Cambia la contraseña después
+                'password' => Hash::make('admin123456'), 
                 'estado' => '1',
-                'photo' => null, // Deja el campo photo como null
+                'photo' => null, 
                 'email_verified_at' => Carbon::now()
             ]
         );

@@ -12,10 +12,12 @@ class CreateDepartamentosTable extends Migration
             $table->bigIncrements('id');
             $table->bigInteger('pais_id')->unsigned();
             $table->string('nombre');
+            $table->string('codigo')->nullable(); // ← nuevo campo agregado aquí
             $table->string('estado');
             $table->string('registradopor');
             $table->timestamps();
-			$table->foreign('pais_id')
+
+            $table->foreign('pais_id')
                 ->references('id')->on('paises');
         });
     }

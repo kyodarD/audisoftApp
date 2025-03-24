@@ -4,12 +4,10 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreateRolesTable extends Migration
 {
     /**
      * Ejecuta las migraciones.
-     *
-     * @return void
      */
     public function up(): void
     {
@@ -20,18 +18,15 @@ return new class extends Migration
             $table->text('description')->nullable(); // Descripción opcional del rol
             $table->timestamps();
 
-            // Agregar un índice para 'guard_name' si es necesario
             $table->index('guard_name');
         });
     }
 
     /**
      * Revierte las migraciones.
-     *
-     * @return void
      */
     public function down(): void
     {
         Schema::dropIfExists('roles');
     }
-};
+}

@@ -1,78 +1,113 @@
 @extends('layouts.app')
 
-@section('title', 'Detalles del Empleado')
+@section('title', 'Detalle del Empleado')
 
 @section('content')
 
 <div class="content-wrapper">
     <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1>Detalles del Empleado</h1>
-                </div>
-                <div class="col-sm-6 text-right"></div>
-            </div>
-        </div>
+        <div class="container-fluid"></div>
     </section>
-    
+
     <section class="content">
         <div class="container-fluid">
-            <div class="row">
-                <!-- Sección que abarca todo el ancho -->
-                <div class="col-12">
+            <div class="row justify-content-center">
+                <div class="col-md-10">
                     <div class="card">
                         <div class="card-header bg-secondary text-white">
-                            <h3 class="card-title">Información del Empleado</h3>
+                            <h4 class="mb-0">@yield('title')</h4>
                         </div>
+
                         <div class="card-body">
                             <div class="row">
-                                <!-- Columna izquierda con detalles -->
+                                <!-- Columna izquierda -->
                                 <div class="col-md-6">
-                                    <table class="table table-striped">
-                                        <tr><th>ID:</th><td>{{ $empleado->id }}</td></tr>
-                                        <tr><th>Nombre:</th><td>{{ $empleado->nombre }}</td></tr>
-                                        <tr><th>Cédula:</th><td>{{ $empleado->cedula }}</td></tr>
-                                        <tr><th>Teléfono:</th><td>{{ $empleado->telefono }}</td></tr>
-                                        <tr><th>Email:</th><td>{{ $empleado->email }}</td></tr>
-                                        <tr><th>Dirección:</th><td>{{ $empleado->direccion }}</td></tr>
-                                        <tr><th>Cargo:</th><td>{{ $empleado->cargo }}</td></tr>
-                                        <tr><th>Salario:</th><td>${{ number_format($empleado->salario, 2) }}</td></tr>
-                                    </table>
+                                    <div class="form-group">
+                                        <strong>Usuario:</strong>
+                                        <p>{{ $empleado->user->name ?? 'N/A' }}</p>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>Nombre:</strong>
+                                        <p>{{ $empleado->nombre }}</p>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>Email:</strong>
+                                        <p>{{ $empleado->email }}</p>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>Cédula:</strong>
+                                        <p>{{ $empleado->cedula }}</p>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>Teléfono:</strong>
+                                        <p>{{ $empleado->telefono }}</p>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>Dirección:</strong>
+                                        <p>{{ $empleado->direccion ?? 'No especificada' }}</p>
+                                    </div>
                                 </div>
 
-                                <!-- Columna derecha con estado y rol -->
+                                <!-- Columna derecha -->
                                 <div class="col-md-6">
-                                    <table class="table table-striped">
-                                        <tr>
-                                            <th>Estado:</th>
-                                            <td>
-                                                <span class="badge {{ $empleado->estado == 'activo' ? 'badge-success' : 'badge-danger' }}">
-                                                    {{ ucfirst($empleado->estado) }}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th>Rol:</th>
-                                            <td>
-                                                <span class="badge badge-info">{{ $empleado->usuario->roles->first()->name ?? 'Sin rol asignado' }}</span>
-                                            </td>
-                                        </tr>
-                                    </table>
+                                    <div class="form-group">
+                                        <strong>Cargo:</strong>
+                                        <p>{{ $empleado->cargo }}</p>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>Salario:</strong>
+                                        <p>${{ number_format($empleado->salario, 2) }}</p>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>Estado:</strong>
+                                        <p>{{ ucfirst($empleado->estado) }}</p>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>Rol:</strong>
+                                        <p>{{ $empleado->role->name ?? 'No asignado' }}</p>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>Ciudad:</strong>
+                                        <p>{{ $empleado->ciudad->nombre ?? 'N/A' }}</p>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>Departamento:</strong>
+                                        <p>{{ $empleado->ciudad->departamento->nombre ?? 'N/A' }}</p>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>País:</strong>
+                                        <p>{{ $empleado->ciudad->departamento->pais->nombre ?? 'N/A' }}</p>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>Registrado por:</strong>
+                                        <p>{{ $empleado->registradoPor->name ?? 'N/A' }}</p>
+                                    </div>
+
+                                    @if($empleado->photo)
+                                        <div class="form-group">
+                                            <strong>Foto:</strong><br>
+                                            <img src="{{ asset('storage/' . $empleado->photo) }}" alt="Foto del empleado" width="150">
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Footer con botones -->
-                        <div class="card-footer text-right">
-                            <a href="{{ route('empleados.index') }}" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left"></i> Volver
-                            </a>
-                            @can('empleados.edit')
-                                <a href="{{ route('empleados.edit', $empleado->id) }}" class="btn btn-primary">
-                                    <i class="fas fa-edit"></i> Editar
-                                </a>
-                            @endcan
+                            <div class="form-group mt-4 text-right">
+                                <a href="{{ route('empleados.index') }}" class="btn btn-secondary">Volver</a>
+                                <a href="{{ route('empleados.edit', $empleado->id) }}" class="btn btn-primary">Editar</a>
+                            </div>
                         </div>
                     </div>
                 </div>

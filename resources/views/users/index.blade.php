@@ -8,31 +8,34 @@
     <section class="content-header" style="text-align: right;">
         <div class="container-fluid"></div>
     </section>
+
     @include('layouts.partial.msg')
+
     <section class="content">
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
                     <div class="card">
-                        <div class="card-header bg-secondary" style="font-size: 1.75rem;font-weight: 500; line-height: 1.2; margin-bottom: 0.5rem;">
+                        <div class="card-header bg-secondary" style="font-size: 1.75rem;font-weight: 500;">
                             @yield('title')
                             @can('users.create')
-                                <a href="{{ route('users.create') }}" class="btn btn-primary float-right" title="Nuevo">
+                                <a href="{{ route('users.create') }}" class="btn btn-primary float-right" title="Nuevo Usuario">
                                     <i class="fas fa-plus nav-icon"></i>
                                 </a>
                             @endcan
                         </div>
+
                         <div class="card-body">
                             <table id="example1" class="table table-bordered table-striped" style="width:100%">
                                 <thead class="text-primary">
                                     <tr>
-                                        <th width="10px">Id</th>
+                                        <th width="10px">ID</th>
                                         <th>Usuario</th>
                                         <th>Correo</th>
                                         <th>Fotografía</th>
                                         <th>Rol</th>
                                         <th width="60px">Estado</th>
-                                        <th width="30px">Acción</th>
+                                        <th width="100px">Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -41,38 +44,45 @@
                                         <td>{{ $user->id }}</td>
                                         <td>{{ $user->name }}</td>
                                         <td>{{ $user->email }}</td>
-                                        <td>
-                                            <center>
-                                                @if ($user->photo)
-                                                    <img class="img-responsive img-thumbnail" 
-                                                         src="{{ Storage::url($user->photo) }}" 
-                                                         style="height: 70px; width: 70px" 
-                                                         alt="Foto de {{ $user->name }}">
-                                                @else
-                                                    <span class="badge badge-secondary">Sin Foto</span>
-                                                @endif
-                                            </center>
+                                        <td class="text-center">
+                                            @if ($user->photo_url)
+                                                <img src="{{ $user->photo_url }}"
+                                                     alt="Foto de {{ $user->name }}"
+                                                     title="{{ $user->name }}"
+                                                     class="img-thumbnail"
+                                                     style="height: 70px; width: 70px; object-fit: cover;"
+                                                     onerror="this.onerror=null;this.src='https://via.placeholder.com/70?text=No+Img';">
+                                            @else
+                                                <span class="badge badge-secondary">Sin Foto</span>
+                                            @endif
                                         </td>
                                         <td>
                                             @if($user->getRoleNames()->isNotEmpty())
-                                                @foreach($user->getRoleNames() as $rolNombre)                                       
-                                                    <h5><span class="badge badge-success">{{ $rolNombre }}</span></h5>
+                                                @foreach($user->getRoleNames() as $rolNombre)
+                                                    <span class="badge badge-success">{{ $rolNombre }}</span>
                                                 @endforeach
                                             @else
-                                                <h5><span class="badge badge-secondary">Sin Rol</span></h5>
+                                                <span class="badge badge-secondary">Sin Rol</span>
                                             @endif
                                         </td>
                                         <td>
                                             @can('users.cambioestadouser')
-                                                <input data-type="user" data-id="{{ $user->id }}" class="toggle-class" 
-                                                       type="checkbox" data-onstyle="success" data-offstyle="danger" 
-                                                       data-toggle="toggle" data-on="Activo" data-off="Inactivo" 
+                                                <input type="checkbox"
+                                                       class="toggle-class"
+                                                       data-id="{{ $user->id }}"
+                                                       data-type="user"
+                                                       data-toggle="toggle"
+                                                       data-on="Activo"
+                                                       data-off="Inactivo"
+                                                       data-onstyle="success"
+                                                       data-offstyle="danger"
                                                        {{ $user->estado ? 'checked' : '' }}>
                                             @endcan
                                         </td>
                                         <td>
                                             @can('users.edit')
-                                                <a href="{{ route('users.edit', $user) }}" class="btn btn-info btn-sm" title="Editar">
+                                                <a href="{{ route('users.edit', $user) }}"
+                                                   class="btn btn-info btn-sm" title="Editar Usuario">
                                                     <i class="fas fa-pencil-alt"></i>
                                                 </a>
                                             @endcan
@@ -81,8 +91,8 @@
                                     @endforeach
                                 </tbody>
                             </table>
-                        </div>
-                    </div>
+                        </div> <!-- /.card-body -->
+                    </div> <!-- /.card -->
                 </div>
             </div>
         </div>

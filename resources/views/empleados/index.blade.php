@@ -28,15 +28,12 @@
                             <table id="example1" class="table table-bordered table-hover" style="width:100%">
                                 <thead class="text-primary">
                                     <tr>
-                                        <th width="10px">ID</th>
+                                        <th>ID</th>
                                         <th>Nombre</th>
                                         <th>Cédula</th>
-                                        <th>Email</th>
-                                        <th>Teléfono</th>
                                         <th>Cargo</th>
-                                        <th>Salario</th>
                                         <th>Estado</th>
-                                        <th width="150px">Acción</th> <!-- Se amplió el ancho para acomodar los botones -->
+                                        <th width="150px">Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -45,32 +42,28 @@
                                         <td>{{ $empleado->id }}</td>
                                         <td>{{ $empleado->nombre }}</td>
                                         <td>{{ $empleado->cedula }}</td>
-                                        <td>{{ $empleado->email }}</td>
-                                        <td>{{ $empleado->telefono }}</td>
                                         <td>{{ $empleado->cargo }}</td>
-                                        <td>{{ number_format($empleado->salario, 2) }}</td>
                                         <td>
                                             @can('empleados.cambioestadoempleado')
-                                                <input data-type="empleado" data-id="{{ $empleado->id }}" class="toggle-class" type="checkbox" data-onstyle="success" data-offstyle="danger" 
-                                                data-toggle="toggle" data-on="Activo" data-off="Inactivo" {{ $empleado->estado == 'activo' ? 'checked' : '' }}>
+                                                <input data-type="empleado" data-id="{{ $empleado->id }}" class="toggle-class" type="checkbox"
+                                                    data-onstyle="success" data-offstyle="danger"
+                                                    data-toggle="toggle" data-on="Activo" data-off="Inactivo"
+                                                    {{ $empleado->estado == 'activo' ? 'checked' : '' }}>
                                             @endcan
                                         </td>
                                         <td>
-                                            <!-- Botón "Ver Detalles" -->
                                             @can('empleados.show')
                                                 <a href="{{ route('empleados.show', $empleado->id) }}" class="btn btn-primary btn-sm" title="Ver Detalles">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                             @endcan
                                             
-                                            <!-- Botón "Editar" -->
                                             @can('empleados.edit')
                                                 <a href="{{ route('empleados.edit', $empleado->id) }}" class="btn btn-info btn-sm" title="Editar Empleado">
                                                     <i class="fas fa-pencil-alt"></i>
                                                 </a>
                                             @endcan
                                             
-                                            <!-- Botón "Eliminar" -->
                                             @can('empleados.destroy')
                                                 <form class="d-inline delete-form" action="{{ route('empleados.destroy', $empleado->id) }}" method="POST">
                                                     @csrf
@@ -85,8 +78,8 @@
                                     @endforeach
                                 </tbody>
                             </table>
-                        </div>
-                    </div>
+                        </div> <!-- .card-body -->
+                    </div> <!-- .card -->
                 </div>
             </div>
         </div>
