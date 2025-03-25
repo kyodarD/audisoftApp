@@ -10,13 +10,21 @@ use App\Http\Requests\CategoriaRequest;
 use Illuminate\Database\QueryException;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use App\Traits\HasPermissionMiddleware;
 
 class CategoriaController extends Controller
 {
+    use HasPermissionMiddleware;
+
+    public function __construct()
+    {
+        $this->applyPermissionMiddleware('categorias');
+    }
+
     public function index()
     {
         $categorias = Categoria::all();
-        return view('categorias.index',compact('categorias'));
+        return view('categorias.index', compact('categorias'));
     }
 
     public function create()
@@ -26,18 +34,18 @@ class CategoriaController extends Controller
 
     public function store(CategoriaRequest $request)
     {
-		$categoria = Categoria::create($request->all());
-		return redirect()->route('categorias.index')->with('successMsg','El registro se guardó exitosamente');
+        Categoria::create($request->all());
+        return redirect()->route('categorias.index')->with('successMsg','El registro se guardó exitosamente');
     }
 
     public function show(Categoria $categoria)
     {
-        //
+        // Si no lo usas, puedes dejarlo vacío o eliminarlo si no lo llamas en las rutas.
     }
 
     public function edit(Categoria $categoria)
     {
-        return view('categorias.edit',compact('categoria'));
+        return view('categorias.edit', compact('categoria'));
     }
 
     public function update(CategoriaRequest $request, Categoria $categoria)
@@ -45,27 +53,27 @@ class CategoriaController extends Controller
         $categoria->update($request->all());
         return redirect()->route('categorias.index')->with('successMsg','El registro se actualizó exitosamente');
     }
-	
-	public function destroy(Categoria $categoria)
+
+    public function destroy(Categoria $categoria)
     {
-		try {
+        try {
             $categoria->delete();
             return redirect()->route('categorias.index')->with('successMsg', 'El registro se eliminó exitosamente');
         } catch (QueryException $e) {
-            // Capturar y manejar violaciones de restricción de clave foránea
-            Log::error('Error al eliminar el categoria: ' . $e->getMessage());
-            return redirect()->route('paises.index')->withErrors('El registro que desea eliminar tiene información relacionada. Comuníquese con el Administrador');
+            Log::error('Error al eliminar la categoría: ' . $e->getMessage());
+            return redirect()->route('categorias.index')
+                ->withErrors('El registro que desea eliminar tiene información relacionada. Comuníquese con el Administrador');
         } catch (Exception $e) {
-            // Capturar y manejar cualquier otra excepción
-            Log::error('Error inesperado al eliminar el categoria: ' . $e->getMessage());
-            return redirect()->route('paises.index')->withErrors('Ocurrió un error inesperado al eliminar el registro. Comuníquese con el Administrador');
+            Log::error('Error inesperado al eliminar la categoría: ' . $e->getMessage());
+            return redirect()->route('categorias.index')
+                ->withErrors('Ocurrió un error inesperado al eliminar el registro. Comuníquese con el Administrador');
         }
     }
-	
-	public function cambioestadocategoria(Request $request)
-	{
-		$categoria = Categoria::find($request->id);
-		$categoria->estado=$request->estado;
-		$categoria->save();
-	}
+
+    public function cambioestadocategoria(Request $request)
+    {
+        $categoria = Categoria::find($request->id);
+        $categoria->estado = $request->estado;
+        $categoria->save();
+    }
 }

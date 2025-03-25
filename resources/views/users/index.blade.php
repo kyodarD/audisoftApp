@@ -18,7 +18,9 @@
                     <div class="card">
                         <div class="card-header bg-secondary" style="font-size: 1.75rem;font-weight: 500;">
                             @yield('title')
-                            @can('users.create')
+                            
+                            {{-- Botón "Crear Usuario", protegido por "crear usuarios" --}}
+                            @can('crear usuarios')
                                 <a href="{{ route('users.create') }}" class="btn btn-primary float-right" title="Nuevo Usuario">
                                     <i class="fas fa-plus nav-icon"></i>
                                 </a>
@@ -66,7 +68,8 @@
                                             @endif
                                         </td>
                                         <td>
-                                            @can('users.cambioestadouser')
+                                            {{-- Cambiar estado: si lo consideras parte de "editar usuarios" --}}
+                                            @can('editar usuarios')
                                                 <input type="checkbox"
                                                        class="toggle-class"
                                                        data-id="{{ $user->id }}"
@@ -80,12 +83,28 @@
                                             @endcan
                                         </td>
                                         <td>
-                                            @can('users.edit')
+                                            {{-- Editar usuario (o ver) --}}
+                                            @can('editar usuarios')
                                                 <a href="{{ route('users.edit', $user) }}"
                                                    class="btn btn-info btn-sm" title="Editar Usuario">
                                                     <i class="fas fa-pencil-alt"></i>
                                                 </a>
                                             @endcan
+                                            
+                                            {{-- Si tuvieras "mostrar usuarios":
+                                                @can('mostrar usuarios')
+                                                    <a href="{{ route('users.show', $user) }}"
+                                                       class="btn btn-success btn-sm" title="Ver Detalles">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                @endcan
+                                            --}}
+                                            
+                                            {{-- Si tuvieras "eliminar usuarios" como permiso separado:
+                                                @can('eliminar usuarios')
+                                                    <form ...> ... </form>
+                                                @endcan
+                                            --}}
                                         </td>
                                     </tr>
                                     @endforeach

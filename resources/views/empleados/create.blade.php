@@ -24,6 +24,9 @@
 
                                 <!-- Campo oculto registradopor -->
                                 <input type="hidden" name="registradopor" value="{{ auth()->id() }}">
+                                
+                                <!-- Campo oculto estado -->
+                                <input type="hidden" name="estado" value="activo">
 
                                 <div class="row">
                                     <div class="col-md-6">
@@ -115,18 +118,6 @@
                                             <input type="number" name="salario" id="salario" class="form-control"
                                                    value="{{ old('salario') }}" required step="0.01" min="0">
                                             @error('salario')
-                                                <div class="text-danger">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
-                                        <!-- Estado -->
-                                        <div class="form-group">
-                                            <label for="estado">Estado</label>
-                                            <select name="estado" id="estado" class="form-control" required>
-                                                <option value="activo" {{ old('estado') == 'activo' ? 'selected' : '' }}>Activo</option>
-                                                <option value="inactivo" {{ old('estado') == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
-                                            </select>
-                                            @error('estado')
                                                 <div class="text-danger">{{ $message }}</div>
                                             @enderror
                                         </div>
@@ -232,7 +223,6 @@ document.getElementById("user_id").addEventListener("change", function () {
     }
 });
 
-// Dropdowns dependientes
 const paisesData = @json($paises);
 const paisSelect = document.getElementById('pais_id');
 const departamentoSelect = document.getElementById('departamento_id');

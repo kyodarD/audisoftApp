@@ -8,6 +8,7 @@
     <section class="content-header" style="text-align: right;">
         <div class="container-fluid"></div>
     </section>
+
     <section class="content-header">
         <div class="container-fluid">
             <div class="row">
@@ -21,73 +22,61 @@
                                 @csrf
                                 @method('PUT')
 
-                                <input type="hidden" name="id" value="{{ $user->id }}">
-
+                                <!-- Nombre -->
                                 <div class="form-group">
                                     <label for="name">Nombre del Usuario</label>
-                                    <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $user->name) }}" required>
+                                    <input type="text" name="name"
+                                           class="form-control @error('name') is-invalid @enderror"
+                                           value="{{ old('name', $user->name) }}" required>
                                     @error('name')
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
+                                        <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
                                     @enderror
                                 </div>
 
+                                <!-- Correo -->
                                 <div class="form-group">
                                     <label for="email">Correo Electrónico</label>
-                                    <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', $user->email) }}" required>
+                                    <input type="email" name="email"
+                                           class="form-control @error('email') is-invalid @enderror"
+                                           value="{{ old('email', $user->email) }}" required>
                                     @error('email')
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
+                                        <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
                                     @enderror
                                 </div>
 
+                                <!-- Rol (único, tipo select) -->
                                 <hr>
-                                <h3>Lista de Roles</h3>
+                                <h4>Asignar Rol</h4>
                                 <div class="form-group">
-                                    <ul class="list-unstyled">
+                                    <label for="role_id">Rol</label>
+                                    <select name="roles[]" id="role_id" class="form-control @error('roles') is-invalid @enderror" required>
+                                        <option value="">Seleccione un rol</option>
                                         @foreach($roles as $role)
-                                            <li>
-                                                <label>
-                                                    <input type="checkbox" name="roles[]" value="{{ $role->id }}" {{ $user->roles->contains($role->id) ? 'checked' : '' }}>
-                                                    {{ $role->name }}
-                                                </label>
-                                            </li>    
+                                            <option value="{{ $role->id }}"
+                                                {{ in_array($role->id, old('roles', $user->roles->pluck('id')->toArray())) ? 'selected' : '' }}>
+                                                {{ $role->name }}
+                                            </option>
                                         @endforeach
-                                    </ul>
-                                    @error('roles')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-                                        <div class="form-group label-floating">
-                                            <label for="photo">Fotografía</label>
-                                            <input type="file" class="form-control-file @error('photo') is-invalid @enderror" name="photo" id="photo">
-                                            @error('photo')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="estado">Estado</label>
-                                    <select name="estado" class="form-control @error('estado') is-invalid @enderror" required>
-                                        <option value="1" {{ old('estado', $user->estado) == '1' ? 'selected' : '' }}>Activo</option>
-                                        <option value="0" {{ old('estado', $user->estado) == '0' ? 'selected' : '' }}>Inactivo</option>
                                     </select>
-                                    @error('estado')
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
+                                    @error('roles')
+                                        <span class="invalid-feedback d-block"><strong>{{ $message }}</strong></span>
                                     @enderror
                                 </div>
 
+                                <!-- Foto -->
+                                <div class="form-group">
+                                    <label for="photo">Fotografía</label>
+                                    <input type="file" name="photo"
+                                           class="form-control-file @error('photo') is-invalid @enderror">
+                                    @error('photo')
+                                        <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+
+                                <!-- Estado oculto (siempre activo) -->
+                                <input type="hidden" name="estado" value="1">
+
+                                <!-- Botones -->
                                 <div class="card-footer">
                                     <div class="row">
                                         <div class="col-lg-2 col-xs-4">
@@ -100,8 +89,8 @@
                                 </div>
 
                             </form>
-                        </div>
-                    </div>
+                        </div> <!-- /.card-body -->
+                    </div> <!-- /.card -->
                 </div>
             </div>
         </div>

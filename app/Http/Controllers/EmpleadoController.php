@@ -12,10 +12,19 @@ use App\Http\Requests\EmpleadoRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Storage;
 use Exception;
+use App\Traits\HasPermissionMiddleware;
 
 class EmpleadoController extends Controller
 {
+    use HasPermissionMiddleware;
+
+    public function __construct()
+    {
+        $this->applyPermissionMiddleware('empleados');
+    }
+
     public function index()
     {
         $empleados = Empleado::with(['user', 'role', 'ciudad.departamento.pais'])->get();
@@ -40,12 +49,21 @@ class EmpleadoController extends Controller
 
             $validated['registradopor'] = auth()->id();
 
-            // Subir imagen si se envía
             if ($request->hasFile('photo')) {
                 $validated['photo'] = $request->file('photo')->store('empleados/photos', 'public');
             }
 
-            Empleado::create($validated);
+            $empleado = Empleado::create($validated);
+
+            // Asignar el rol al usuario vinculado
+            $user = User::find($validated['user_id']);
+            $roleName = Role::find($validated['role_id'])?->name;
+
+            if ($user && $roleName) {
+                $user->syncRoles([$roleName]);
+                $user->role_id = $validated['role_id'];
+                $user->save();
+            }
 
             DB::commit();
 
@@ -73,16 +91,25 @@ class EmpleadoController extends Controller
         try {
             DB::beginTransaction();
 
-            // Reemplazar imagen si hay nueva
             if ($request->hasFile('photo')) {
-                if ($empleado->photo && \Storage::exists('public/' . $empleado->photo)) {
-                    \Storage::delete('public/' . $empleado->photo);
+                if ($empleado->photo && Storage::exists('public/' . $empleado->photo)) {
+                    Storage::delete('public/' . $empleado->photo);
                 }
 
                 $validated['photo'] = $request->file('photo')->store('empleados/photos', 'public');
             }
 
             $empleado->update($validated);
+
+            // Actualizar el rol del usuario vinculado
+            $user = $empleado->user;
+            $roleName = Role::find($validated['role_id'])?->name;
+
+            if ($user && $roleName) {
+                $user->syncRoles([$roleName]);
+                $user->role_id = $validated['role_id'];
+                $user->save();
+            }
 
             DB::commit();
 

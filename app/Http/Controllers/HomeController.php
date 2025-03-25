@@ -9,12 +9,15 @@ use App\Models\Cliente;
 use App\Models\Proveedor;
 use App\Models\Compra;
 use App\Models\Venta;
+use App\Traits\HasPermissionMiddleware;
 
 class HomeController extends Controller
 {
+    use HasPermissionMiddleware;
+
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->applyPermissionMiddleware('dashboard');
     }
 
     public function index()

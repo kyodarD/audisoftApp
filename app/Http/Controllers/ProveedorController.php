@@ -9,9 +9,17 @@ use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Traits\HasPermissionMiddleware;
 
 class ProveedorController extends Controller
 {
+    use HasPermissionMiddleware;
+
+    public function __construct()
+    {
+        $this->applyPermissionMiddleware('proveedores');
+    }
+
     /**
      * Muestra la lista de proveedores.
      */
@@ -81,15 +89,13 @@ class ProveedorController extends Controller
     public function update(ProveedorRequest $request, Proveedor $proveedor)
     {
         try {
-            // Log para depuración
             Log::info('Actualizando proveedor:', [
                 'id' => $proveedor->id,
                 'datos' => $request->validated()
             ]);
 
             $validated = $request->validated();
-            
-            // Asegurarse de mantener el registradopor original si no se proporciona
+
             if (!isset($validated['registradopor'])) {
                 $validated['registradopor'] = $proveedor->registradopor;
             }
@@ -150,7 +156,7 @@ class ProveedorController extends Controller
                 'proveedor_id' => $request->id,
                 'estado' => $request->estado
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al actualizar el estado'

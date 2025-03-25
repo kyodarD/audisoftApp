@@ -12,9 +12,17 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use App\Traits\HasPermissionMiddleware;
 
 class VentaController extends Controller
 {
+    use HasPermissionMiddleware;
+
+    public function __construct()
+    {
+        $this->applyPermissionMiddleware('ventas');
+    }
+
     public function index()
     {
         $ventas = Venta::all();
@@ -41,7 +49,6 @@ class VentaController extends Controller
 
             $validated['registradopor'] = auth()->id();
 
-            // Crear la venta principal
             $venta = Venta::create([
                 'cliente_id' => $validated['cliente_id'],
                 'fecha_venta' => $validated['fecha_venta'],
@@ -52,7 +59,6 @@ class VentaController extends Controller
                 'registradopor' => $validated['registradopor'],
             ]);
 
-            // Guardar los detalles de productos
             foreach ($validated['detalles'] as $detalle) {
                 $venta->detalles()->create([
                     'producto_id' => $detalle['producto_id'],
@@ -62,7 +68,6 @@ class VentaController extends Controller
                     'registradopor' => $validated['registradopor'],
                 ]);
 
-                // Reducir el stock del producto
                 Producto::where('id', $detalle['producto_id'])->decrement('stock', $detalle['cantidad']);
             }
 
@@ -100,10 +105,8 @@ class VentaController extends Controller
                 'estado' => $validated['estado'],
             ]);
 
-            // Eliminar detalles antiguos (si quieres actualizar completamente)
             $venta->detalles()->delete();
 
-            // Volver a crear los nuevos detalles
             foreach ($validated['detalles'] as $detalle) {
                 $venta->detalles()->create([
                     'producto_id' => $detalle['producto_id'],

@@ -8,9 +8,17 @@ use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use App\Traits\HasPermissionMiddleware;
 
 class ClienteController extends Controller
 {
+    use HasPermissionMiddleware;
+
+    public function __construct()
+    {
+        $this->applyPermissionMiddleware('clientes');
+    }
+
     // Muestra todos los clientes
     public function index()
     {
@@ -31,7 +39,7 @@ class ClienteController extends Controller
 
         try {
             // Asignar el ID del usuario autenticado al campo 'registradopor'
-            $validated['registradopor'] = auth()->user()->id;
+            $validated['registradopor'] = auth()->id();
 
             // Crear el nuevo cliente con los datos validados
             Cliente::create($validated);

@@ -21,7 +21,8 @@
                         <div class="card-header bg-secondary" style="font-size: 1.75rem; font-weight: 500; line-height: 1.2; margin-bottom: 0.5rem;">
                             @yield('title')
                             <div class="float-right">
-                                @can('ventas.create')
+                                {{-- Botón CREAR: usar el permiso "crear ventas" --}}
+                                @can('crear ventas')
                                 <a href="{{ route('ventas.create') }}" class="btn btn-primary" title="Nueva Venta">
                                     <i class="fas fa-plus nav-icon"></i>
                                 </a>
@@ -59,27 +60,41 @@
                                             @endif
                                         </td>
                                         <td>
-                                            @can('ventas.cambioestadoventa')
-                                                <input data-type="ventas" data-id="{{ $venta->id }}" class="toggle-class" type="checkbox"
+                                            {{-- Cambiar estado: normalmente se asocia a "editar ventas" --}}
+                                            @can('editar ventas')
+                                                <input data-type="ventas" data-id="{{ $venta->id }}" class="toggle-class" 
+                                                    type="checkbox"
                                                     data-onstyle="success" data-offstyle="danger" 
                                                     data-toggle="toggle" data-on="Activo" data-off="Inactivo"
                                                     {{ $venta->estado == 'activo' ? 'checked' : '' }}>
                                             @endcan
                                         </td>
                                         <td>
-                                            <a href="{{ route('ventas.show', $venta->id) }}" class="btn btn-success btn-sm" title="Ver Detalles">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            @can('ventas.edit')
-                                                <a href="{{ route('ventas.edit', $venta->id) }}" class="btn btn-info btn-sm" title="Editar">
+                                            {{-- Mostrar detalle (show): permiso "mostrar ventas" --}}
+                                            @can('mostrar ventas')
+                                                <a href="{{ route('ventas.show', $venta->id) }}" 
+                                                   class="btn btn-success btn-sm" title="Ver Detalles">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            @endcan
+
+                                            {{-- Editar: permiso "editar ventas" --}}
+                                            @can('editar ventas')
+                                                <a href="{{ route('ventas.edit', $venta->id) }}" 
+                                                   class="btn btn-info btn-sm" title="Editar">
                                                     <i class="fas fa-pencil-alt"></i>
                                                 </a>
                                             @endcan
-                                            @can('ventas.destroy')
-                                                <form class="d-inline delete-form" action="{{ route('ventas.destroy', $venta->id) }}" method="POST">
+
+                                            {{-- Eliminar: permiso "editar ventas" (o podrías usar un "eliminar ventas" si lo definiste) --}}
+                                            @can('editar ventas')
+                                                <form class="d-inline delete-form" 
+                                                      action="{{ route('ventas.destroy', $venta->id) }}" 
+                                                      method="POST">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm" title="Eliminar">
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="Eliminar"
+                                                            onclick="return confirm('¿Seguro de eliminar esta venta?')">
                                                         <i class="fas fa-trash-alt"></i>
                                                     </button>
                                                 </form>

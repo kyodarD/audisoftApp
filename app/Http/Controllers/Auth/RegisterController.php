@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator; // Asegúrate de importar esto
+use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -38,15 +38,18 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
         ]);
 
-        // Asignar el rol de cliente al usuario recién creado
+        // Asignar el rol de cliente
         $user->assignRole('cliente');
+
+        // Limpiar caché de permisos (Spatie)
+        $user->forgetCachedPermissions();
 
         return $user;
     }
 
     protected function registered($request, $user)
     {
-        // Redirigir al usuario después de registrarse y verificar el correo
+        // Redirigir con mensaje después de registrarse
         return redirect($this->redirectPath())->with('success', 'Por favor verifica tu correo electrónico.');
     }
 }

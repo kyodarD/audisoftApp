@@ -9,10 +9,18 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use App\Http\Requests\UsuarioRequest;
-use Illuminate\Support\Facades\Storage;  // Asegúrate de incluir Storage
+use Illuminate\Support\Facades\Storage;
+use App\Traits\HasPermissionMiddleware;
 
 class UsuarioController extends Controller
 {
+    use HasPermissionMiddleware;
+
+    public function __construct()
+    {
+        $this->applyPermissionMiddleware('usuarios');
+    }
+
     public function index()
     {
         $users = User::all();
@@ -27,38 +35,34 @@ class UsuarioController extends Controller
 
     public function store(UsuarioRequest $request)
     {
-        // Los datos ya están validados gracias a UsuarioRequest
-
-        // Procesar imagen
-        $image = $request->file('photo');  // Ajustamos el nombre del campo a 'photo'
+        $image = $request->file('photo');
         $slug = Str::slug($request->name);
-        
-        if ($image) {
-            // Generar el nombre único para la imagen
-            $imagename = $slug . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
 
-            // Almacenar la imagen en el disco 'public' en la carpeta 'photos'
+        if ($image) {
+            $imagename = $slug . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
             $imagePath = $image->storeAs('photos', $imagename, 'public');
         } else {
-            $imagePath = null; // Si no se sube imagen, asignamos null
+            $imagePath = null;
         }
 
-        // Crear el usuario
         $user = User::create([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
             'password' => Hash::make($request->input('password')),
             'remember_token' => Str::random(60),
             'photo' => $imagePath,
-            'estado' => $request->input('estado', 1),  // Asignar estado por defecto si no se pasa
+            'estado' => $request->input('estado', 1),
         ]);
 
-        // Asignar roles si existen
-        if ($request->filled('roles')) {
-            $user->roles()->sync($request->roles);  // Sincronizamos los roles
-        } else {
-            return back()->withErrors(['roles' => 'Debes asignar al menos un rol al usuario.'])->withInput();
-        }
+        // Convertir los IDs a nombres de roles
+        $roleNames = Role::whereIn('id', $request->roles)->pluck('name')->toArray();
+
+        // Asignar roles
+        $user->syncRoles($roleNames);
+
+        // Guardar el primer role_id como referencia (opcional)
+        $user->role_id = $request->roles[0];
+        $user->save();
 
         return redirect()->route('users.index')->with('successMsg', 'El usuario se guardó exitosamente');
     }
@@ -71,39 +75,37 @@ class UsuarioController extends Controller
 
     public function update(UsuarioRequest $request, User $user)
     {
-        // Validación
         $request->validated();
 
-        // Evitar que un Administrador elimine su propio rol
-        if (auth()->user()->id === $user->id && !in_array('Administrador', $request->roles ?? [])) {
-            return redirect()->route('users.index')->with('errorMsg', 'No puedes eliminar tu propio rol de Administrador.');
+        // Obtener nombres de roles a partir de los IDs enviados
+        $roleNames = Role::whereIn('id', $request->roles)->pluck('name')->toArray();
+
+        if (auth()->user()->id === $user->id && !in_array('super-admin', $roleNames)) {
+            return redirect()->route('users.index')->with('errorMsg', 'No puedes eliminar tu propio rol de Super Admin.');
         }
 
-        // Actualizar los datos del usuario (excluyendo roles y contraseña)
-        $user->update($request->except(['roles', 'password']));
+        $user->update($request->except(['roles', 'password', 'photo']));
 
-        // Si la contraseña fue ingresada, actualizarla
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
             $user->save();
         }
 
-        // Sincronizar roles asignados
-        $user->roles()->sync($request->roles ?? []);  // Actualizamos los roles del usuario
+        // Sincronizar roles y actualizar role_id
+        $user->syncRoles($roleNames);
+        $user->role_id = $request->roles[0];
+        $user->save();
 
-        // Si se sube una nueva foto, actualizamos la ruta de la imagen
+        // Subir nueva foto (si existe)
         if ($request->hasFile('photo')) {
-            // Eliminar la foto anterior si existe
             if ($user->photo && Storage::exists('public/' . $user->photo)) {
                 Storage::delete('public/' . $user->photo);
             }
 
-            // Subir la nueva foto
             $image = $request->file('photo');
             $imagename = Str::slug($request->name) . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
             $imagePath = $image->storeAs('photos', $imagename, 'public');
 
-            // Actualizar la columna 'photo' del usuario con la nueva imagen
             $user->photo = $imagePath;
             $user->save();
         }

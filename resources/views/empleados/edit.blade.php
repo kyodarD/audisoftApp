@@ -21,6 +21,9 @@
                                 @csrf
                                 @method('PUT')
 
+                                <!-- Campo oculto para estado (siempre activo) -->
+                                <input type="hidden" name="estado" value="activo">
+
                                 <div class="row">
                                     <div class="col-md-6">
                                         <!-- Usuario (no editable) -->
@@ -79,16 +82,6 @@
                                             <input type="number" name="salario" id="salario" class="form-control"
                                                    value="{{ old('salario', $empleado->salario) }}" required step="0.01" min="0">
                                             @error('salario') <div class="text-danger">{{ $message }}</div> @enderror
-                                        </div>
-
-                                        <!-- Estado -->
-                                        <div class="form-group">
-                                            <label for="estado">Estado</label>
-                                            <select name="estado" id="estado" class="form-control" required>
-                                                <option value="activo" {{ old('estado', $empleado->estado) == 'activo' ? 'selected' : '' }}>Activo</option>
-                                                <option value="inactivo" {{ old('estado', $empleado->estado) == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
-                                            </select>
-                                            @error('estado') <div class="text-danger">{{ $message }}</div> @enderror
                                         </div>
 
                                         <!-- Rol -->

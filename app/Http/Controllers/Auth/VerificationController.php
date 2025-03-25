@@ -11,7 +11,7 @@ class VerificationController extends Controller
 {
     use VerifiesEmails;
 
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/home'; // ruta por defecto para otros roles
 
     public function __construct()
     {
@@ -21,24 +21,37 @@ class VerificationController extends Controller
     }
 
     /**
-     * Override del método verify para actualizar el estado del usuario.
+     * Método sobrescrito para verificar el correo, activar estado y redirigir según el rol.
      */
     public function verify(Request $request)
     {
         $user = $request->user();
 
         if ($user->hasVerifiedEmail()) {
-            return redirect($this->redirectPath())->with('verified', true);
+            return redirect($this->determineRedirect($user))->with('verified', true);
         }
 
         if ($user->markEmailAsVerified()) {
             event(new Verified($user));
 
-            // Actualiza el estado del usuario a 1
+            // Activar estado y limpiar permisos
             $user->estado = 1;
             $user->save();
+            $user->forgetCachedPermissions();
         }
 
-        return redirect($this->redirectPath())->with('verified', true);
+        return redirect($this->determineRedirect($user))->with('verified', true);
+    }
+
+    /**
+     * Redirección dinámica según el rol del usuario.
+     */
+    protected function determineRedirect($user)
+    {
+        if ($user->hasRole('cliente')) {
+            return '/ventas';
+        }
+
+        return $this->redirectTo;
     }
 }

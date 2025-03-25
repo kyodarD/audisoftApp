@@ -31,7 +31,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'password' => 'hashed',
     ];
 
-    // ✅ Accesor para obtener la URL de la foto almacenada
+    
     public function getPhotoUrlAttribute()
     {
         return $this->photo ? Storage::url($this->photo) : null;

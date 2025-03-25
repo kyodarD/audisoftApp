@@ -12,19 +12,27 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use App\Traits\HasPermissionMiddleware;
 
 class ProductoController extends Controller
 {
+    use HasPermissionMiddleware;
+
+    public function __construct()
+    {
+        $this->applyPermissionMiddleware('productos');
+    }
+
     public function index()
     {
-        $productos = Producto::with(['categoria', 'proveedor'])->get(); // Relación con categorías y proveedores
+        $productos = Producto::with(['categoria', 'proveedor'])->get();
         return view('productos.index', compact('productos'));
     }
 
     public function create()
     {
         $categorias = Categoria::where('estado', '=', '1')->orderBy('nombre')->get();
-        $proveedores = Proveedor::where('estado', '=', 'activo')->orderBy('nombre')->get(); // Proveedores activos
+        $proveedores = Proveedor::where('estado', '=', 'activo')->orderBy('nombre')->get();
         return view('productos.create', compact('categorias', 'proveedores'));
     }
 
@@ -41,12 +49,14 @@ class ProductoController extends Controller
                 if (!file_exists('uploads/productos')) {
                     mkdir('uploads/productos', 0777, true);
                 }
+
                 $image->move('uploads/productos', $imagename);
             } else {
                 $imagename = "";
             }
 
             Producto::create(array_merge($request->all(), ['img' => $imagename]));
+
             return redirect()->route('productos.index')->with('successMsg', 'El registro se guardó exitosamente');
         } catch (Exception $e) {
             Log::error('Error al guardar el producto: ' . $e->getMessage());
@@ -57,7 +67,7 @@ class ProductoController extends Controller
     public function edit(Producto $producto)
     {
         $categorias = Categoria::all();
-        $proveedores = Proveedor::all(); // Obtener todos los proveedores
+        $proveedores = Proveedor::all();
         return view('productos.edit', compact('producto', 'categorias', 'proveedores'));
     }
 
@@ -74,12 +84,14 @@ class ProductoController extends Controller
                 if (!file_exists('uploads/productos')) {
                     mkdir('uploads/productos', 0777, true);
                 }
+
                 $image->move('uploads/productos', $imagename);
             } else {
                 $imagename = $producto->img;
             }
 
             $producto->update(array_merge($request->all(), ['img' => $imagename]));
+
             return redirect()->route('productos.index')->with('successMsg', 'El registro se actualizó exitosamente');
         } catch (Exception $e) {
             Log::error('Error al actualizar el producto: ' . $e->getMessage());
@@ -88,15 +100,14 @@ class ProductoController extends Controller
     }
 
     public function show(Producto $producto)
-{
-    try {
-        return view('productos.show', compact('producto'));
-    } catch (Exception $e) {
-        Log::error('Error al mostrar el producto: ' . $e->getMessage());
-        return redirect()->route('productos.index')->withErrors('No se pudo mostrar el detalle del producto.');
+    {
+        try {
+            return view('productos.show', compact('producto'));
+        } catch (Exception $e) {
+            Log::error('Error al mostrar el producto: ' . $e->getMessage());
+            return redirect()->route('productos.index')->withErrors('No se pudo mostrar el detalle del producto.');
+        }
     }
-}
-
 
     public function destroy(Producto $producto)
     {
@@ -125,8 +136,6 @@ class ProductoController extends Controller
             'stock' => $producto->stock,
         ]);
     }
-
-
 
     public function cambioestadoproducto(Request $request)
     {

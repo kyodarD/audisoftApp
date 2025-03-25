@@ -5,15 +5,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use App\Http\Requests\PermissionRequest;
+use App\Traits\HasPermissionMiddleware;
 
 class PermissionController extends Controller
 {
-    function __construct()
+    use HasPermissionMiddleware;
+
+    public function __construct()
     {
-        $this->middleware('permission:permissions.index|permissions.create|permissions.edit|permissions.destroy', ['only' => ['index']]);
-        $this->middleware('permission:permissions.create', ['only' => ['create', 'store']]);
-        $this->middleware('permission:permissions.edit', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:permissions.destroy', ['only' => ['destroy']]);
+        $this->applyPermissionMiddleware('permisos');
     }
 
     public function index()

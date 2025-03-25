@@ -12,9 +12,17 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use App\Traits\HasPermissionMiddleware;
 
 class CompraController extends Controller
 {
+    use HasPermissionMiddleware;
+
+    public function __construct()
+    {
+        $this->applyPermissionMiddleware('compras');
+    }
+
     public function index()
     {
         $compras = Compra::all();
@@ -60,7 +68,6 @@ class CompraController extends Controller
                     'registradopor' => $validated['registradopor'],
                 ]);
 
-                // Aumentar el stock del producto
                 Producto::where('id', $detalle['producto_id'])->increment('stock', $detalle['cantidad']);
             }
 
@@ -98,7 +105,6 @@ class CompraController extends Controller
                 'estado' => $validated['estado'],
             ]);
 
-            // Eliminar detalles antiguos
             $compra->detalles()->delete();
 
             foreach ($validated['detalles'] as $detalle) {
