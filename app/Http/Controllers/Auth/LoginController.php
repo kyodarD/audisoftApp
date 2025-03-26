@@ -15,28 +15,6 @@ class LoginController extends Controller
     }
 
     /**
-     * Redirige al usuario autenticado según su rol.
-     */
-    protected function redirectTo()
-    {
-        $user = auth()->user();
-
-        if ($user->hasRole('super-admin')) {
-            return '/home';
-        }
-
-        if ($user->hasRole('vendedor')) {
-            return '/compras';
-        }
-
-        if ($user->hasRole('cliente')) {
-            return '/ventas';
-        }
-
-        return '/home';
-    }
-
-    /**
      * Este método se ejecuta justo después del login exitoso.
      */
     protected function authenticated($request, $user)
@@ -46,5 +24,17 @@ class LoginController extends Controller
 
         // Recargar el usuario con relaciones
         auth()->setUser($user->fresh()->load('roles', 'permissions'));
+
+        // Buscar el primer permiso que comience con "ver "
+        foreach ($user->getAllPermissions() as $permiso) {
+            if (str_starts_with($permiso->name, 'ver ')) {
+                // Extraer el nombre del recurso, por ejemplo "ver compras" => "compras"
+                $recurso = str_replace('ver ', '', $permiso->name);
+                return redirect("/$recurso");
+            }
+        }
+
+        // Si no tiene ningún permiso que empiece por "ver", lo mandamos a una vista segura
+        return redirect('/home');
     }
 }

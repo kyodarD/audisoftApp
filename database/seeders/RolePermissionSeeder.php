@@ -12,7 +12,7 @@ class RolePermissionSeeder extends Seeder
     {
         // Secciones del sistema
         $secciones = [
-            'dashboard',
+            'home',
             'sliders',
             'usuarios',
             'roles',
