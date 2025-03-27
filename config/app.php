@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Portal_Ingeniería_De_Sistemas'),
+    'name' => env('APP_NAME', 'Audysoftw'),
 
     /*
     |--------------------------------------------------------------------------

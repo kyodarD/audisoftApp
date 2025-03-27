@@ -115,7 +115,7 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-lg-6 col-sm-12">
+                                    <!-- <div class="col-lg-6 col-sm-12">
                                         <div class="form-group">
                                             <label for="estado">Estado <span class="text-danger">*</span></label>
                                             <select class="form-control @error('estado') is-invalid @enderror" 
@@ -129,7 +129,9 @@
                                                 <span class="invalid-feedback">{{ $message }}</span>
                                             @enderror
                                         </div>
-                                    </div>
+                                    </div> -->
+                                    <input type="hidden" name="estado" value="activo">
+
                                 </div>
                             </div>
 

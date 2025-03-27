@@ -89,6 +89,7 @@
                                     <select name="estado_venta" class="form-control">
                                         <option value="pendiente">Pendiente</option>
                                         <option value="pagado">Pagado</option>
+                                        <option value="pagado">Cancelado</option>
                                     </select>
                                 </div>
                             </div>
