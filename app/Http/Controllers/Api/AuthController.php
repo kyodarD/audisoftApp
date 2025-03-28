@@ -70,4 +70,12 @@ class AuthController extends Controller
     ]);
 }
 
+
+public function index()
+{
+    // Listar todos los usuarios, con paginación
+    $usuarios = User::paginate(10);  // Puedes ajustar el número de usuarios por página
+    return response()->json($usuarios);
+}
+
 }
