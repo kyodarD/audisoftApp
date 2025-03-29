@@ -20,20 +20,14 @@ Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
+// Rutas de autenticación con verificación de correo
 Auth::routes(['verify' => true]);
-
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    Route::get('/usuarios/imagen/{filename}', [App\Http\Controllers\UsuarioController::class, 'mostrarImagen'])->name('imagen.usuario');
-    Route::get('/empleados/imagen/{filename}', [App\Http\Controllers\EmpleadoController::class, 'mostrarImagen'])->name('imagen.empleado');
-    Route::get('/productos/imagen/{filename}', [App\Http\Controllers\ProductoController::class, 'mostrarImagen'])->name('imagen.producto');
-
-
-    Route::get('email/verify/{id}/{hash}', 'Auth\VerificationController@verify')
-     ->middleware(['auth', 'signed'])
-     ->name('verification.verify');
-
+    Route::get('/usuarios/imagen/{filename}', [UsuarioController::class, 'mostrarImagen'])->name('imagen.usuario');
+    Route::get('/empleados/imagen/{filename}', [EmpleadoController::class, 'mostrarImagen'])->name('imagen.empleado');
+    Route::get('/productos/imagen/{filename}', [ProductoController::class, 'mostrarImagen'])->name('imagen.producto');
 
     // Panel de control
     Route::get('/home', [HomeController::class, 'index'])

@@ -28,7 +28,7 @@ class VerificationController extends Controller
     {
         $user = $request->user();
 
-        // Si ya está verificado, redirige
+        // Verificar si ya ha verificado su correo
         if ($user->hasVerifiedEmail()) {
             return redirect($this->determineRedirect($user))->with('verified', true);
         }
