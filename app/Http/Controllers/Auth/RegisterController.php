@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Auth;
-
+use Illuminate\Auth\Events\Registered;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -43,7 +43,7 @@ class RegisterController extends Controller
 
         // Limpiar caché de permisos (Spatie)
         $user->forgetCachedPermissions();
-
+        event(new Registered($user));
         return $user;
     }
 
