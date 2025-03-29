@@ -11,7 +11,8 @@ class VerificationController extends Controller
 {
     use VerifiesEmails;
 
-    protected $redirectTo = '/home'; // ruta por defecto para otros roles
+    // Redirección por defecto
+    protected $redirectTo = '/home'; 
 
     public function __construct()
     {
@@ -27,10 +28,12 @@ class VerificationController extends Controller
     {
         $user = $request->user();
 
+        // Si ya está verificado, redirige
         if ($user->hasVerifiedEmail()) {
             return redirect($this->determineRedirect($user))->with('verified', true);
         }
 
+        // Si no está verificado, marca el correo como verificado
         if ($user->markEmailAsVerified()) {
             event(new Verified($user));
 
@@ -40,6 +43,7 @@ class VerificationController extends Controller
             $user->forgetCachedPermissions();
         }
 
+        // Redirigir a la página correspondiente después de la verificación
         return redirect($this->determineRedirect($user))->with('verified', true);
     }
 
@@ -48,10 +52,12 @@ class VerificationController extends Controller
      */
     protected function determineRedirect($user)
     {
+        // Si el usuario tiene rol de cliente, lo redirige a la página de ventas
         if ($user->hasRole('cliente')) {
             return '/ventas';
         }
 
+        // Redirección por defecto
         return $this->redirectTo;
     }
 }
