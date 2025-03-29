@@ -18,7 +18,7 @@ class VerificationController extends Controller
 
     public function __construct()
     {
-        // Solo proteger rutas específicas
+        // Proteger las rutas necesarias
         $this->middleware('auth')->except('verify');
         $this->middleware('signed')->only('verify');
         $this->middleware('throttle:6,1')->only('verify', 'resend');
@@ -29,28 +29,32 @@ class VerificationController extends Controller
      */
     public function verify(Request $request)
     {
-        // Buscar al usuario por el ID incluido en la URL firmada
+        // Obtener el usuario desde la ruta
         $user = User::findOrFail($request->route('id'));
 
-        // Verificar si ya ha verificado su correo
+        // Validar que el hash sea válido
+        if (! hash_equals((string) $request->route('hash'), sha1($user->getEmailForVerification()))) {
+            abort(403, 'El enlace de verificación no es válido.');
+        }
+
+        // Si ya está verificado, solo loguear y redirigir
         if ($user->hasVerifiedEmail()) {
-            Auth::login($user); // Login automático
+            Auth::login($user);
             return redirect($this->determineRedirect($user))->with('verified', true);
         }
 
-        // Marcar el correo como verificado
+        // Marcar como verificado
         if ($user->markEmailAsVerified()) {
             event(new Verified($user));
 
-            // Activar estado y limpiar permisos
-            $user->estado = 1;
+            $user->estado = 1; // Activar usuario
             $user->save();
-            $user->forgetCachedPermissions();
+
+            $user->forgetCachedPermissions(); // Limpiar permisos cacheados si usas Spatie
 
             Auth::login($user); // Login automático
         }
 
-        // Redirigir a la página correspondiente después de la verificación
         return redirect($this->determineRedirect($user))->with('verified', true);
     }
 
@@ -63,7 +67,6 @@ class VerificationController extends Controller
             return '/ventas';
         }
 
-        // Redirección por defecto
         return $this->redirectTo;
     }
 }
