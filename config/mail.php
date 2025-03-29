@@ -38,11 +38,11 @@ return [
 
         'smtp' => [
             'transport' => 'smtp',
-            'host' => env('MAIL_HOST', 'smtp.sendgrid.net'),
+            'host' => env('MAIL_HOST', 'smtp.gmail.com'),
             'port' => env('MAIL_PORT', 587),
             'encryption' => env('MAIL_ENCRYPTION', 'tls'),
-            'username' => env('MAIL_USERNAME', 'apikey'), // SendGrid API key username
-            'password' => env('MAIL_PASSWORD'),  // Your SendGrid API key here
+            'username' => env('MAIL_USERNAME'),  // Your Gmail address
+            'password' => env('MAIL_PASSWORD'),  // Your Gmail password or app-specific password
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN'),
         ],
@@ -82,7 +82,7 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'your_email@example.com'),
+        'address' => env('MAIL_FROM_ADDRESS', 'kyodardark20@gmail.com'), // Your Gmail address
         'name' => env('MAIL_FROM_NAME', 'Audysoftw'),
     ],
 

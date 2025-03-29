@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\VerifiesEmails;
 use Illuminate\Http\Request;
 use Illuminate\Auth\Events\Verified;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class VerificationController extends Controller
 {
@@ -16,7 +18,8 @@ class VerificationController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth');
+        // Solo proteger rutas específicas
+        $this->middleware('auth')->except('verify');
         $this->middleware('signed')->only('verify');
         $this->middleware('throttle:6,1')->only('verify', 'resend');
     }
@@ -26,14 +29,16 @@ class VerificationController extends Controller
      */
     public function verify(Request $request)
     {
-        $user = $request->user();
+        // Buscar al usuario por el ID incluido en la URL firmada
+        $user = User::findOrFail($request->route('id'));
 
         // Verificar si ya ha verificado su correo
         if ($user->hasVerifiedEmail()) {
+            Auth::login($user); // Login automático
             return redirect($this->determineRedirect($user))->with('verified', true);
         }
 
-        // Si no está verificado, marca el correo como verificado
+        // Marcar el correo como verificado
         if ($user->markEmailAsVerified()) {
             event(new Verified($user));
 
@@ -41,6 +46,8 @@ class VerificationController extends Controller
             $user->estado = 1;
             $user->save();
             $user->forgetCachedPermissions();
+
+            Auth::login($user); // Login automático
         }
 
         // Redirigir a la página correspondiente después de la verificación
@@ -52,7 +59,6 @@ class VerificationController extends Controller
      */
     protected function determineRedirect($user)
     {
-        // Si el usuario tiene rol de cliente, lo redirige a la página de ventas
         if ($user->hasRole('cliente')) {
             return '/ventas';
         }
