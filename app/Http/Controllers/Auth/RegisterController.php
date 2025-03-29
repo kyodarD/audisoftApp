@@ -43,7 +43,7 @@ class RegisterController extends Controller
 
         // Limpiar caché de permisos (Spatie)
         $user->forgetCachedPermissions();
-        event(new Registered($user));
+    // 
         return $user;
     }
 
