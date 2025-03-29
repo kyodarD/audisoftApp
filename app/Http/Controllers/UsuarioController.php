@@ -41,7 +41,10 @@ class UsuarioController extends Controller
         if ($image) {
             $imagename = $slug . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
             $imagePath = 'usuarios/' . $imagename;
-            Storage::disk('s3')->put($imagePath, file_get_contents($image));
+
+            // Subida con visibilidad pública
+            Storage::disk('s3')->put($imagePath, file_get_contents($image), 'public');
+
             $imageUrl = Storage::disk('s3')->url($imagePath);
         } else {
             $imageUrl = null;
@@ -96,7 +99,9 @@ class UsuarioController extends Controller
             $imagename = Str::slug($request->name) . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
             $imagePath = 'usuarios/' . $imagename;
 
-            Storage::disk('s3')->put($imagePath, file_get_contents($image));
+            // Subida con visibilidad pública
+            Storage::disk('s3')->put($imagePath, file_get_contents($image), 'public');
+
             $user->photo = Storage::disk('s3')->url($imagePath);
             $user->save();
         }
