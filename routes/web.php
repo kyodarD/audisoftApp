@@ -25,6 +25,8 @@ Auth::routes(['verify' => true]);
 Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/usuarios/imagen/{filename}', [App\Http\Controllers\UsuarioController::class, 'mostrarImagen'])->name('imagen.usuario');
+    Route::get('/empleados/imagen/{filename}', [App\Http\Controllers\EmpleadoController::class, 'mostrarImagen'])->name('imagen.empleado');
+    Route::get('/productos/imagen/{filename}', [App\Http\Controllers\ProductoController::class, 'mostrarImagen'])->name('imagen.producto');
 
 
     // Panel de control
