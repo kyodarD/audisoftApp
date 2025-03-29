@@ -33,9 +33,9 @@ Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'
 Route::middleware(['auth', 'verified'])->group(function () {
 
     // Rutas para mostrar imágenes privadas
-    Route::get('/usuarios/imagen/{filename}', [UsuarioController::class, 'mostrarImagen'])->name('imagen.usuario');
-    Route::get('/empleados/imagen/{filename}', [EmpleadoController::class, 'mostrarImagen'])->name('imagen.empleado');
-    Route::get('/productos/imagen/{filename}', [ProductoController::class, 'mostrarImagen'])->name('imagen.producto');
+    // Route::get('/usuarios/imagen/{filename}', [UsuarioController::class, 'mostrarImagen'])->name('imagen.usuario');
+    // Route::get('/empleados/imagen/{filename}', [EmpleadoController::class, 'mostrarImagen'])->name('imagen.empleado');
+    // Route::get('/productos/imagen/{filename}', [ProductoController::class, 'mostrarImagen'])->name('imagen.producto');
 
     // Panel de control
     Route::get('/home', [HomeController::class, 'index'])

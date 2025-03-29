@@ -47,24 +47,18 @@
                                         <td>{{ $user->name }}</td>
                                         <td>{{ $user->email }}</td>
                                         <td class="text-center">
-                                            @if ($user->photo)
-                                                @php
-                                                    $filename = basename($user->photo);
-                                                    $imageUrl = route('imagen.usuario', $filename);
-                                                @endphp
-
-                                                <img src="{{ $imageUrl }}"
+                                            @if ($user->photo && $user->temp_image_url)
+                                                <img src="{{ $user->temp_image_url }}"
                                                     alt="Foto de {{ $user->name }}"
                                                     title="{{ $user->name }}"
                                                     class="img-thumbnail"
                                                     style="height: 70px; width: 70px; object-fit: cover;"
                                                     onerror="this.onerror=null;this.src='https://via.placeholder.com/70?text=No+Img';">
-
-                                                {{-- Mostrar la URL solo si estás en debug --}}
+                                                
                                                 @if(config('app.debug'))
                                                     <br>
                                                     <small style="font-size: 10px;">
-                                                        <a href="{{ $imageUrl }}" target="_blank">{{ $imageUrl }}</a>
+                                                        <a href="{{ $user->temp_image_url }}" target="_blank">{{ $user->temp_image_url }}</a>
                                                     </small>
                                                 @endif
                                             @else

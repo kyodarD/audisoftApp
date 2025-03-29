@@ -24,6 +24,23 @@ class UsuarioController extends Controller
     public function index()
     {
         $users = User::all();
+
+        foreach ($users as $user) {
+            if ($user->photo) {
+                try {
+                    $user->temp_image_url = Storage::disk('s3')->temporaryUrl(
+                        $user->photo,
+                        now()->addMinutes(10)
+                    );
+                } catch (\Exception $e) {
+                    \Log::warning("No se pudo generar URL para: " . $user->photo);
+                    $user->temp_image_url = null;
+                }
+            } else {
+                $user->temp_image_url = null;
+            }
+        }
+
         return view('users.index', compact('users'));
     }
 
@@ -114,27 +131,6 @@ class UsuarioController extends Controller
             return response()->json(['success' => 'Estado actualizado correctamente.']);
         } else {
             return response()->json(['error' => 'Usuario no encontrado.'], 404);
-        }
-    }
-
-    // Mostrar imagen desde S3 sin usar exists()
-    public function mostrarImagen($filename)
-    {
-        $path = 'usuarios/' . $filename;
-
-        try {
-            \Log::info("🔍 Accediendo a imagen privada: $path");
-
-            // ❗ Bucketeer bloquea exists(), así que vamos directo a obtener el archivo
-            $file = Storage::disk('s3')->get($path);
-            $mime = Storage::disk('s3')->mimeType($path);
-
-            \Log::info("✅ Imagen encontrada y servida desde S3: $path");
-
-            return response($file, 200)->header('Content-Type', $mime);
-        } catch (\Exception $e) {
-            \Log::error("❌ Error al cargar imagen desde S3: " . $e->getMessage());
-            abort(404, 'Imagen no encontrada.');
         }
     }
 }
