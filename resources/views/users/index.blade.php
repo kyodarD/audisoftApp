@@ -47,8 +47,8 @@
                                         <td>{{ $user->name }}</td>
                                         <td>{{ $user->email }}</td>
                                         <td class="text-center">
-                                            @if ($user->photo_url)
-                                                <img src="{{ $user->photo_url }}"
+                                            @if ($user->photo)
+                                                <img src="{{ Storage::url($user->photo) }}"
                                                      alt="Foto de {{ $user->name }}"
                                                      title="{{ $user->name }}"
                                                      class="img-thumbnail"
@@ -79,7 +79,8 @@
                                                        data-off="Inactivo"
                                                        data-onstyle="success"
                                                        data-offstyle="danger"
-                                                       {{ $user->estado ? 'checked' : '' }}>
+                                                       {{ $user->estado ? 'checked' : '' }}
+                                                       style="height: 30px; width: 60px; text-align: center;"> <!-- Ajustado tamaño -->
                                             @endcan
                                         </td>
                                         <td>
