@@ -59,12 +59,14 @@
                                                     class="img-thumbnail"
                                                     style="height: 70px; width: 70px; object-fit: cover;"
                                                     onerror="this.onerror=null;this.src='https://via.placeholder.com/70?text=No+Img';">
-                                                
-                                                {{-- Mostrar la URL generada --}}
-                                                <br>
-                                                <small style="font-size: 10px;">
-                                                    <a href="{{ $imageUrl }}" target="_blank">{{ $imageUrl }}</a>
-                                                </small>
+
+                                                {{-- Mostrar la URL solo si estás en debug --}}
+                                                @if(config('app.debug'))
+                                                    <br>
+                                                    <small style="font-size: 10px;">
+                                                        <a href="{{ $imageUrl }}" target="_blank">{{ $imageUrl }}</a>
+                                                    </small>
+                                                @endif
                                             @else
                                                 <span class="badge badge-secondary">Sin Foto</span>
                                             @endif

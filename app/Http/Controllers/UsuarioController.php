@@ -117,27 +117,24 @@ class UsuarioController extends Controller
         }
     }
 
+    // Mostrar imagen desde S3 sin usar exists()
     public function mostrarImagen($filename)
     {
         $path = 'usuarios/' . $filename;
-    
+
         try {
-            \Log::info(" Generando URL firmada para imagen: $path");
-    
-            if (!Storage::disk('s3')->exists($path)) {
-                \Log::warning(" Imagen no encontrada en S3: $path");
-                abort(404, 'Imagen no encontrada.');
-            }
-    
-            $url = Storage::disk('s3')->temporaryUrl(
-                $path,
-                now()->addMinutes(10) // expira en 10 minutos
-            );
-    
-            return redirect($url);
+            \Log::info("🔍 Accediendo a imagen privada: $path");
+
+            // ❗ Bucketeer bloquea exists(), así que vamos directo a obtener el archivo
+            $file = Storage::disk('s3')->get($path);
+            $mime = Storage::disk('s3')->mimeType($path);
+
+            \Log::info("✅ Imagen encontrada y servida desde S3: $path");
+
+            return response($file, 200)->header('Content-Type', $mime);
         } catch (\Exception $e) {
-            \Log::error(" Error al generar URL firmada: " . $e->getMessage());
-            abort(500, 'Error al cargar la imagen.');
+            \Log::error("❌ Error al cargar imagen desde S3: " . $e->getMessage());
+            abort(404, 'Imagen no encontrada.');
         }
     }
 }
