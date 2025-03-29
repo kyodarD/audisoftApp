@@ -41,11 +41,18 @@
                                     </p>
                                 </div>
 
-                                <!-- Imagen del producto -->
+                                <!-- Imagen del producto desde S3 -->
                                 <div class="col-lg-6 col-sm-12 text-center">
                                     <h4>Imagen del Producto</h4>
-                                    @if($producto->img && file_exists(public_path('uploads/productos/' . $producto->img)))
-                                        <img src="{{ asset('uploads/productos/' . $producto->img) }}" alt="Imagen del producto" class="img-fluid rounded" style="max-height: 300px;">
+                                    @if($producto->img)
+                                        @php
+                                            $filename = basename($producto->img);
+                                        @endphp
+                                        <img src="{{ route('imagen.producto', $filename) }}" 
+                                             alt="Imagen del producto" 
+                                             class="img-fluid rounded" 
+                                             style="max-height: 300px;"
+                                             onerror="this.onerror=null;this.src='https://via.placeholder.com/300x300?text=No+Img';">
                                     @else
                                         <p class="text-muted">No hay imagen disponible.</p>
                                     @endif

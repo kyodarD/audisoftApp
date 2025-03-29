@@ -30,14 +30,14 @@
                 @endcan
 
                 {{-- Sliders --}}
-                @can('ver sliders')
+                <!-- @can('ver sliders')
                     <li class="nav-item">
                         <a href="{{ route('sliders.index') }}" class="nav-link">
                             <i class="nav-icon fas fa-sliders-h"></i>
                             <p>Sliders</p>
                         </a>
                     </li>
-                @endcan
+                @endcan -->
 
                 {{-- Acceso --}}
                 @canany(['ver usuarios', 'ver roles', 'ver permisos', 'ver empleados'])

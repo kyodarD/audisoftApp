@@ -67,8 +67,13 @@
                                 <h6 class="text-primary border-bottom pb-1 mt-3 mb-2">Foto</h6>
                                 <div class="row">
                                     <div class="col-md-3 mt-2">
-                                        <img src="{{ asset('storage/' . $empleado->photo) }}" alt="Foto del empleado"
-                                             class="img-thumbnail shadow-sm rounded" style="max-width: 100%;">
+                                        @php
+                                            $filename = basename($empleado->photo);
+                                        @endphp
+                                        <img src="{{ route('imagen.empleado', $filename) }}" alt="Foto del empleado"
+                                             class="img-thumbnail shadow-sm rounded"
+                                             style="max-width: 100%;"
+                                             onerror="this.onerror=null;this.src='https://via.placeholder.com/300x300?text=No+Img';">
                                     </div>
                                 </div>
                             @endif
