@@ -22,6 +22,10 @@ Route::get('/', function () {
 
 // Rutas de autenticación con verificación de correo
 Auth::routes(['verify' => true]);
+Route::get('/email/verify/{id}/{hash}', [App\Http\Controllers\Auth\VerificationController::class, 'verify'])
+->name('verification.verify')
+->middleware(['signed']); 
+
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
@@ -29,10 +33,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/empleados/imagen/{filename}', [EmpleadoController::class, 'mostrarImagen'])->name('imagen.empleado');
     Route::get('/productos/imagen/{filename}', [ProductoController::class, 'mostrarImagen'])->name('imagen.producto');
 
-    // Esto lo haces solo si el controlador no está conectado automáticamente
     Route::get('/email/verify/{id}/{hash}', [App\Http\Controllers\Auth\VerificationController::class, 'verify'])
         ->name('verification.verify')
-        ->middleware(['signed']); // no uses auth aquí, ya lo manejamos en el controlador
+        ->middleware(['signed']); 
 
 
     // Panel de control
