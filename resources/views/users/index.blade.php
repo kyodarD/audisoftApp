@@ -57,10 +57,6 @@
                                                     class="img-thumbnail"
                                                     style="height: 70px; width: 70px; object-fit: cover;"
                                                     onerror="this.onerror=null;this.src='https://via.placeholder.com/70?text=No+Img';">
-                                                <br>
-                                                <small class="text-muted d-block" style="max-width: 150px; overflow-wrap: break-word;">
-                                                    {{ $filename }}
-                                                </small>
                                             @else
                                                 <span class="badge badge-secondary">Sin Foto</span>
                                             @endif
