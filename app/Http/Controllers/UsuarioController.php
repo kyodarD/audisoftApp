@@ -40,9 +40,11 @@ class UsuarioController extends Controller
 
         if ($image) {
             $imagename = $slug . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
-            $imagePath = $image->storeAs('photos', $imagename, 'public');
+            $imagePath = 'usuarios/' . $imagename;
+            Storage::disk('s3')->put($imagePath, file_get_contents($image));
+            $imageUrl = Storage::disk('s3')->url($imagePath);
         } else {
-            $imagePath = null;
+            $imageUrl = null;
         }
 
         $user = User::create([
@@ -50,17 +52,12 @@ class UsuarioController extends Controller
             'email' => $request->input('email'),
             'password' => Hash::make($request->input('password')),
             'remember_token' => Str::random(60),
-            'photo' => $imagePath,
+            'photo' => $imageUrl,
             'estado' => $request->input('estado', 1),
         ]);
 
-        // Convertir los IDs a nombres de roles
         $roleNames = Role::whereIn('id', $request->roles)->pluck('name')->toArray();
-
-        // Asignar roles
         $user->syncRoles($roleNames);
-
-        // Guardar el primer role_id como referencia (opcional)
         $user->role_id = $request->roles[0];
         $user->save();
 
@@ -77,7 +74,6 @@ class UsuarioController extends Controller
     {
         $request->validated();
 
-        // Obtener nombres de roles a partir de los IDs enviados
         $roleNames = Role::whereIn('id', $request->roles)->pluck('name')->toArray();
 
         if (auth()->user()->id === $user->id && !in_array('super-admin', $roleNames)) {
@@ -91,22 +87,17 @@ class UsuarioController extends Controller
             $user->save();
         }
 
-        // Sincronizar roles y actualizar role_id
         $user->syncRoles($roleNames);
         $user->role_id = $request->roles[0];
         $user->save();
 
-        // Subir nueva foto (si existe)
         if ($request->hasFile('photo')) {
-            if ($user->photo && Storage::exists('public/' . $user->photo)) {
-                Storage::delete('public/' . $user->photo);
-            }
-
             $image = $request->file('photo');
             $imagename = Str::slug($request->name) . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
-            $imagePath = $image->storeAs('photos', $imagename, 'public');
+            $imagePath = 'usuarios/' . $imagename;
 
-            $user->photo = $imagePath;
+            Storage::disk('s3')->put($imagePath, file_get_contents($image));
+            $user->photo = Storage::disk('s3')->url($imagePath);
             $user->save();
         }
 

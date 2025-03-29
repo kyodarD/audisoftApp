@@ -48,7 +48,7 @@
                                         <td>{{ $user->email }}</td>
                                         <td class="text-center">
                                             @if ($user->photo)
-                                                <img src="{{ Storage::url($user->photo) }}"
+                                                <img src="{{ $user->photo }}"
                                                      alt="Foto de {{ $user->name }}"
                                                      title="{{ $user->name }}"
                                                      class="img-thumbnail"
@@ -68,7 +68,6 @@
                                             @endif
                                         </td>
                                         <td>
-                                            {{-- Cambiar estado: si lo consideras parte de "editar usuarios" --}}
                                             @can('editar usuarios')
                                                 <input type="checkbox"
                                                        class="toggle-class"
@@ -80,32 +79,16 @@
                                                        data-onstyle="success"
                                                        data-offstyle="danger"
                                                        {{ $user->estado ? 'checked' : '' }}
-                                                       style="height: 30px; width: 60px; text-align: center;"> <!-- Ajustado tamaño -->
+                                                       style="height: 30px; width: 60px; text-align: center;">
                                             @endcan
                                         </td>
                                         <td>
-                                            {{-- Editar usuario (o ver) --}}
                                             @can('editar usuarios')
                                                 <a href="{{ route('users.edit', $user) }}"
                                                    class="btn btn-info btn-sm" title="Editar Usuario">
                                                     <i class="fas fa-pencil-alt"></i>
                                                 </a>
                                             @endcan
-                                            
-                                            {{-- Si tuvieras "mostrar usuarios":
-                                                @can('mostrar usuarios')
-                                                    <a href="{{ route('users.show', $user) }}"
-                                                       class="btn btn-success btn-sm" title="Ver Detalles">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                @endcan
-                                            --}}
-                                            
-                                            {{-- Si tuvieras "eliminar usuarios" como permiso separado:
-                                                @can('eliminar usuarios')
-                                                    <form ...> ... </form>
-                                                @endcan
-                                            --}}
                                         </td>
                                     </tr>
                                     @endforeach
