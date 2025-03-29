@@ -49,11 +49,15 @@
                                         <td class="text-center">
                                             @if ($user->photo)
                                                 <img src="{{ $user->photo }}"
-                                                     alt="Foto de {{ $user->name }}"
-                                                     title="{{ $user->name }}"
-                                                     class="img-thumbnail"
-                                                     style="height: 70px; width: 70px; object-fit: cover;"
-                                                     onerror="this.onerror=null;this.src='https://via.placeholder.com/70?text=No+Img';">
+                                                    alt="Foto de {{ $user->name }}"
+                                                    title="{{ $user->name }}"
+                                                    class="img-thumbnail"
+                                                    style="height: 70px; width: 70px; object-fit: cover;"
+                                                    onerror="this.onerror=null;this.src='https://via.placeholder.com/70?text=No+Img';">
+                                                <br>
+                                                <small class="text-muted d-block" style="max-width: 150px; overflow-wrap: break-word;">
+                                                    {{ $user->photo }}
+                                                </small>
                                             @else
                                                 <span class="badge badge-secondary">Sin Foto</span>
                                             @endif
@@ -70,22 +74,22 @@
                                         <td>
                                             @can('editar usuarios')
                                                 <input type="checkbox"
-                                                       class="toggle-class"
-                                                       data-id="{{ $user->id }}"
-                                                       data-type="user"
-                                                       data-toggle="toggle"
-                                                       data-on="Activo"
-                                                       data-off="Inactivo"
-                                                       data-onstyle="success"
-                                                       data-offstyle="danger"
-                                                       {{ $user->estado ? 'checked' : '' }}
-                                                       style="height: 30px; width: 60px; text-align: center;">
+                                                    class="toggle-class"
+                                                    data-id="{{ $user->id }}"
+                                                    data-type="user"
+                                                    data-toggle="toggle"
+                                                    data-on="Activo"
+                                                    data-off="Inactivo"
+                                                    data-onstyle="success"
+                                                    data-offstyle="danger"
+                                                    {{ $user->estado ? 'checked' : '' }}
+                                                    style="height: 30px; width: 60px; text-align: center;">
                                             @endcan
                                         </td>
                                         <td>
                                             @can('editar usuarios')
                                                 <a href="{{ route('users.edit', $user) }}"
-                                                   class="btn btn-info btn-sm" title="Editar Usuario">
+                                                    class="btn btn-info btn-sm" title="Editar Usuario">
                                                     <i class="fas fa-pencil-alt"></i>
                                                 </a>
                                             @endcan
