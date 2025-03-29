@@ -44,7 +44,27 @@
                                     @enderror
                                 </div>
 
-                                <!-- Rol (único, tipo select) -->
+                                <!-- Contraseña -->
+                                <div class="form-group">
+                                    <label for="password">Contraseña (Dejar en blanco si no deseas cambiar)</label>
+                                    <input type="password" name="password"
+                                           class="form-control @error('password') is-invalid @enderror">
+                                    @error('password')
+                                        <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+
+                                <!-- Confirmar Contraseña -->
+                                <div class="form-group">
+                                    <label for="password_confirmation">Confirmar Contraseña</label>
+                                    <input type="password" name="password_confirmation"
+                                           class="form-control @error('password_confirmation') is-invalid @enderror">
+                                    @error('password_confirmation')
+                                        <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+
+                                <!-- Rol -->
                                 <hr>
                                 <h4>Asignar Rol</h4>
                                 <div class="form-group">
@@ -71,6 +91,11 @@
                                     @error('photo')
                                         <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
                                     @enderror
+                                    @if ($user->photo)
+                                        <img src="{{ Storage::url($user->photo) }}" alt="Foto de {{ $user->name }}" class="img-thumbnail" style="height: 70px; width: 70px; object-fit: cover;">
+                                    @else
+                                        <span class="badge badge-secondary">Sin Foto</span>
+                                    @endif
                                 </div>
 
                                 <!-- Estado oculto (siempre activo) -->

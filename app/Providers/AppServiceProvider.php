@@ -22,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Forzar HTTPS en producción para evitar errores de Mixed Content
+       
         if (env('APP_ENV') === 'production') {
             URL::forceScheme('https');
             $_SERVER['HTTPS'] = 'on';
