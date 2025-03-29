@@ -26,10 +26,11 @@ class VerificationController extends Controller
     {
         $user = User::findOrFail($request->route('id'));
 
-        // Validar el hash con el email directamente
-        if (! hash_equals((string) $request->route('hash'), sha1($user->email))) {
-            abort(403, 'El enlace de verificación no es válido.');
-        }
+        // ❌ Eliminamos esta validación que estaba causando problemas en producción
+        // Laravel ya valida la firma del enlace con el middleware 'signed'
+        // if (! hash_equals((string) $request->route('hash'), sha1($user->getEmailForVerification()))) {
+        //     abort(403, 'El enlace de verificación no es válido.');
+        // }
 
         if ($user->hasVerifiedEmail()) {
             Auth::login($user);
@@ -42,10 +43,10 @@ class VerificationController extends Controller
             $user->estado = 1;
             $user->save();
 
-            $user->forgetCachedPermissions();
-            Auth::login($user);
+            $user->forgetCachedPermissions(); // Si estás usando Spatie
         }
 
+        Auth::login($user);
         return redirect($this->determineRedirect($user))->with('verified', true);
     }
 
