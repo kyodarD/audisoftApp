@@ -117,28 +117,26 @@ class UsuarioController extends Controller
         }
     }
 
-    // Mostrar imagen desde S3 con logging
     public function mostrarImagen($filename)
     {
         $path = 'usuarios/' . $filename;
-
+    
         try {
-            \Log::info("📷 Intentando acceder a: $path");
-
+            \Log::info(" Generando URL firmada para imagen: $path");
+    
             if (!Storage::disk('s3')->exists($path)) {
-                \Log::warning("⚠️ La imagen no existe en S3: $path");
+                \Log::warning(" Imagen no encontrada en S3: $path");
                 abort(404, 'Imagen no encontrada.');
             }
-
-            $file = Storage::disk('s3')->get($path);
-            $mime = Storage::disk('s3')->mimeType($path);
-
-            \Log::info("✅ Imagen encontrada: $path con tipo $mime");
-
-            return response($file, 200)->header('Content-Type', $mime);
-
+    
+            $url = Storage::disk('s3')->temporaryUrl(
+                $path,
+                now()->addMinutes(10) // expira en 10 minutos
+            );
+    
+            return redirect($url);
         } catch (\Exception $e) {
-            \Log::error("❌ Error al cargar imagen desde S3: " . $e->getMessage());
+            \Log::error(" Error al generar URL firmada: " . $e->getMessage());
             abort(500, 'Error al cargar la imagen.');
         }
     }
