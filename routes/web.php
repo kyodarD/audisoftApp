@@ -15,6 +15,7 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\CompraController;
 use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\Auth\VerificationController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -22,21 +23,19 @@ Route::get('/', function () {
 
 // Rutas de autenticación con verificación de correo
 Auth::routes(['verify' => true]);
-Route::get('/email/verify/{id}/{hash}', [App\Http\Controllers\Auth\VerificationController::class, 'verify'])
-->name('verification.verify')
-->middleware(['signed']); 
 
+// Ruta personalizada para verificar el correo (esta es la clave)
+Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])
+    ->middleware(['signed'])
+    ->name('verification.verify');
 
+// Rutas protegidas por autenticación y verificación
 Route::middleware(['auth', 'verified'])->group(function () {
 
+    // Rutas para mostrar imágenes privadas
     Route::get('/usuarios/imagen/{filename}', [UsuarioController::class, 'mostrarImagen'])->name('imagen.usuario');
     Route::get('/empleados/imagen/{filename}', [EmpleadoController::class, 'mostrarImagen'])->name('imagen.empleado');
     Route::get('/productos/imagen/{filename}', [ProductoController::class, 'mostrarImagen'])->name('imagen.producto');
-
-    Route::get('/email/verify/{id}/{hash}', [App\Http\Controllers\Auth\VerificationController::class, 'verify'])
-        ->name('verification.verify')
-        ->middleware(['signed']); 
-
 
     // Panel de control
     Route::get('/home', [HomeController::class, 'index'])
