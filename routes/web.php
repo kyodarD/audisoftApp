@@ -29,9 +29,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/empleados/imagen/{filename}', [App\Http\Controllers\EmpleadoController::class, 'mostrarImagen'])->name('imagen.empleado');
     Route::get('/productos/imagen/{filename}', [App\Http\Controllers\ProductoController::class, 'mostrarImagen'])->name('imagen.producto');
 
+<<<<<<< HEAD
     Route::get('email/verify/{id}/{hash}', 'Auth\VerificationController@verify')
      ->middleware(['auth', 'signed'])
      ->name('verification.verify');
+=======
+>>>>>>> 02e2e8eee2c02f2960dd9dfca6ec54c35bc6d931
 
     // Panel de control
     Route::get('/home', [HomeController::class, 'index'])
