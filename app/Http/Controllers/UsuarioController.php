@@ -121,26 +121,25 @@ class UsuarioController extends Controller
     public function mostrarImagen($filename)
     {
         $path = 'usuarios/' . $filename;
-    
+
         try {
             \Log::info("📷 Intentando acceder a: $path");
-    
+
             if (!Storage::disk('s3')->exists($path)) {
                 \Log::warning("⚠️ La imagen no existe en S3: $path");
                 abort(404, 'Imagen no encontrada.');
             }
-    
+
             $file = Storage::disk('s3')->get($path);
             $mime = Storage::disk('s3')->mimeType($path);
-    
+
             \Log::info("✅ Imagen encontrada: $path con tipo $mime");
-    
+
             return response($file, 200)->header('Content-Type', $mime);
-    
+
         } catch (\Exception $e) {
             \Log::error("❌ Error al cargar imagen desde S3: " . $e->getMessage());
             abort(500, 'Error al cargar la imagen.');
         }
     }
-    
 }
