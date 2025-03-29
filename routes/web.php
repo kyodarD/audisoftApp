@@ -24,6 +24,9 @@ Auth::routes(['verify' => true]);
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
+    Route::get('/usuarios/imagen/{filename}', [App\Http\Controllers\UsuarioController::class, 'mostrarImagen'])->name('imagen.usuario');
+
+
     // Panel de control
     Route::get('/home', [HomeController::class, 'index'])
         ->middleware('can:ver dashboard')
