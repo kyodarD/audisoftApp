@@ -18,7 +18,7 @@
                     <div class="card">
                         <div class="card-header bg-secondary" style="font-size: 1.75rem;font-weight: 500;">
                             @yield('title')
-                            
+
                             {{-- Botón "Crear Usuario", protegido por "crear usuarios" --}}
                             @can('crear usuarios')
                                 <a href="{{ route('users.create') }}" class="btn btn-primary float-right" title="Nuevo Usuario">
@@ -48,7 +48,10 @@
                                         <td>{{ $user->email }}</td>
                                         <td class="text-center">
                                             @if ($user->photo)
-                                                <img src="{{ $user->photo }}"
+                                                @php
+                                                    $filename = basename($user->photo);
+                                                @endphp
+                                                <img src="{{ route('imagen.usuario', $filename) }}"
                                                     alt="Foto de {{ $user->name }}"
                                                     title="{{ $user->name }}"
                                                     class="img-thumbnail"
@@ -56,7 +59,7 @@
                                                     onerror="this.onerror=null;this.src='https://via.placeholder.com/70?text=No+Img';">
                                                 <br>
                                                 <small class="text-muted d-block" style="max-width: 150px; overflow-wrap: break-word;">
-                                                    {{ $user->photo }}
+                                                    {{ $filename }}
                                                 </small>
                                             @else
                                                 <span class="badge badge-secondary">Sin Foto</span>

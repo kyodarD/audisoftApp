@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use App\Http\Requests\UsuarioRequest;
 use Illuminate\Support\Facades\Storage;
 use App\Traits\HasPermissionMiddleware;
+use Symfony\Component\HttpFoundation\Response;
 
 class UsuarioController extends Controller
 {
@@ -42,12 +43,11 @@ class UsuarioController extends Controller
             $imagename = $slug . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
             $imagePath = 'usuarios/' . $imagename;
 
-            // Subida con visibilidad pública (Flysystem v3 compatible)
-            Storage::disk('s3')->put($imagePath, file_get_contents($image), [
-                'visibility' => 'public',
-            ]);
+            // Subida a S3 (aunque privada)
+            Storage::disk('s3')->put($imagePath, file_get_contents($image));
 
-            $imageUrl = Storage::disk('s3')->url($imagePath);
+            // Guardar solo el path relativo
+            $imageUrl = $imagePath;
         } else {
             $imageUrl = null;
         }
@@ -101,12 +101,9 @@ class UsuarioController extends Controller
             $imagename = Str::slug($request->name) . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
             $imagePath = 'usuarios/' . $imagename;
 
-            // Subida con visibilidad pública (Flysystem v3 compatible)
-            Storage::disk('s3')->put($imagePath, file_get_contents($image), [
-                'visibility' => 'public',
-            ]);
+            Storage::disk('s3')->put($imagePath, file_get_contents($image));
 
-            $user->photo = Storage::disk('s3')->url($imagePath);
+            $user->photo = $imagePath;
             $user->save();
         }
 
@@ -123,5 +120,20 @@ class UsuarioController extends Controller
         } else {
             return response()->json(['error' => 'Usuario no encontrado.'], 404);
         }
+    }
+
+    // ✅ NUEVO MÉTODO para mostrar imagen desde S3
+    public function mostrarImagen($filename)
+    {
+        $path = 'usuarios/' . $filename;
+
+        if (!Storage::disk('s3')->exists($path)) {
+            abort(404, 'Imagen no encontrada.');
+        }
+
+        $file = Storage::disk('s3')->get($path);
+        $mime = Storage::disk('s3')->mimeType($path);
+
+        return response($file, 200)->header('Content-Type', $mime);
     }
 }
