@@ -42,8 +42,10 @@ class UsuarioController extends Controller
             $imagename = $slug . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
             $imagePath = 'usuarios/' . $imagename;
 
-            // Subida con visibilidad pública
-            Storage::disk('s3')->put($imagePath, file_get_contents($image), 'public');
+            // Subida con visibilidad pública (Flysystem v3 compatible)
+            Storage::disk('s3')->put($imagePath, file_get_contents($image), [
+                'visibility' => 'public',
+            ]);
 
             $imageUrl = Storage::disk('s3')->url($imagePath);
         } else {
@@ -99,8 +101,10 @@ class UsuarioController extends Controller
             $imagename = Str::slug($request->name) . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
             $imagePath = 'usuarios/' . $imagename;
 
-            // Subida con visibilidad pública
-            Storage::disk('s3')->put($imagePath, file_get_contents($image), 'public');
+            // Subida con visibilidad pública (Flysystem v3 compatible)
+            Storage::disk('s3')->put($imagePath, file_get_contents($image), [
+                'visibility' => 'public',
+            ]);
 
             $user->photo = Storage::disk('s3')->url($imagePath);
             $user->save();
