@@ -1,8 +1,6 @@
 /.phpunit.cache
 /node_modules
-
 /public/hot
-
 /vendor
 .env
 .env.backup
@@ -16,9 +14,3 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
-# Ignorar todos los archivos dentro de storage
-/storage/*
-
-# No ignorar la carpeta public/storage
-!public/storage
-
