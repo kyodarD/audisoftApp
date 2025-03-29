@@ -15,6 +15,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Storage;
 use Exception;
 use App\Traits\HasPermissionMiddleware;
+use Symfony\Component\HttpFoundation\Response;
 
 class EmpleadoController extends Controller
 {
@@ -50,12 +51,17 @@ class EmpleadoController extends Controller
             $validated['registradopor'] = auth()->id();
 
             if ($request->hasFile('photo')) {
-                $validated['photo'] = $request->file('photo')->store('empleados/photos', 'public');
+                $image = $request->file('photo');
+                $imagename = 'empleado-' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $path = 'empleados/' . $imagename;
+
+                Storage::disk('s3')->put($path, file_get_contents($image)); // sin 'public'
+
+                $validated['photo'] = $path; // Guardamos solo el path
             }
 
             $empleado = Empleado::create($validated);
 
-            // Asignar el rol al usuario vinculado
             $user = User::find($validated['user_id']);
             $roleName = Role::find($validated['role_id'])?->name;
 
@@ -92,16 +98,17 @@ class EmpleadoController extends Controller
             DB::beginTransaction();
 
             if ($request->hasFile('photo')) {
-                if ($empleado->photo && Storage::exists('public/' . $empleado->photo)) {
-                    Storage::delete('public/' . $empleado->photo);
-                }
+                $image = $request->file('photo');
+                $imagename = 'empleado-' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $path = 'empleados/' . $imagename;
 
-                $validated['photo'] = $request->file('photo')->store('empleados/photos', 'public');
+                Storage::disk('s3')->put($path, file_get_contents($image)); // sin 'public'
+
+                $validated['photo'] = $path;
             }
 
             $empleado->update($validated);
 
-            // Actualizar el rol del usuario vinculado
             $user = $empleado->user;
             $roleName = Role::find($validated['role_id'])?->name;
 
@@ -139,5 +146,20 @@ class EmpleadoController extends Controller
     {
         $empleado->load('user', 'ciudad.departamento.pais', 'role');
         return view('empleados.show', compact('empleado'));
+    }
+
+    // ✅ NUEVO MÉTODO para mostrar imagen desde S3 privado
+    public function mostrarImagen($filename)
+    {
+        $path = 'empleados/' . $filename;
+
+        if (!Storage::disk('s3')->exists($path)) {
+            abort(404, 'Imagen no encontrada.');
+        }
+
+        $file = Storage::disk('s3')->get($path);
+        $mime = Storage::disk('s3')->mimeType($path);
+
+        return response($file, 200)->header('Content-Type', $mime);
     }
 }

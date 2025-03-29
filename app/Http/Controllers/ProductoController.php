@@ -12,7 +12,9 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use App\Traits\HasPermissionMiddleware;
+use Symfony\Component\HttpFoundation\Response;
 
 class ProductoController extends Controller
 {
@@ -42,20 +44,18 @@ class ProductoController extends Controller
             $image = $request->file('img');
             $slug = Str::slug($request->nombre);
 
-            if (isset($image)) {
-                $currentDate = Carbon::now()->toDateString();
-                $imagename = $slug . '-' . $currentDate . '.' . $image->getClientOriginalExtension();
+            if ($image) {
+                $imagename = $slug . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $path = 'productos/' . $imagename;
 
-                if (!file_exists('uploads/productos')) {
-                    mkdir('uploads/productos', 0777, true);
-                }
+                Storage::disk('s3')->put($path, file_get_contents($image));
 
-                $image->move('uploads/productos', $imagename);
+                $imagePath = $path;
             } else {
-                $imagename = "";
+                $imagePath = null;
             }
 
-            Producto::create(array_merge($request->all(), ['img' => $imagename]));
+            Producto::create(array_merge($request->all(), ['img' => $imagePath]));
 
             return redirect()->route('productos.index')->with('successMsg', 'El registro se guardó exitosamente');
         } catch (Exception $e) {
@@ -77,20 +77,18 @@ class ProductoController extends Controller
             $image = $request->file('img');
             $slug = Str::slug($request->nombre);
 
-            if (isset($image)) {
-                $currentDate = Carbon::now()->toDateString();
-                $imagename = $slug . '-' . $currentDate . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
+            if ($image) {
+                $imagename = $slug . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $path = 'productos/' . $imagename;
 
-                if (!file_exists('uploads/productos')) {
-                    mkdir('uploads/productos', 0777, true);
-                }
+                Storage::disk('s3')->put($path, file_get_contents($image));
 
-                $image->move('uploads/productos', $imagename);
+                $imagePath = $path;
             } else {
-                $imagename = $producto->img;
+                $imagePath = $producto->img;
             }
 
-            $producto->update(array_merge($request->all(), ['img' => $imagename]));
+            $producto->update(array_merge($request->all(), ['img' => $imagePath]));
 
             return redirect()->route('productos.index')->with('successMsg', 'El registro se actualizó exitosamente');
         } catch (Exception $e) {
@@ -149,5 +147,20 @@ class ProductoController extends Controller
             Log::error('Error al cambiar el estado del producto: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Error al actualizar el estado.']);
         }
+    }
+
+    // ✅ Mostrar imagen desde S3 privado
+    public function mostrarImagen($filename)
+    {
+        $path = 'productos/' . $filename;
+
+        if (!Storage::disk('s3')->exists($path)) {
+            abort(404, 'Imagen no encontrada.');
+        }
+
+        $file = Storage::disk('s3')->get($path);
+        $mime = Storage::disk('s3')->mimeType($path);
+
+        return response($file, 200)->header('Content-Type', $mime);
     }
 }
