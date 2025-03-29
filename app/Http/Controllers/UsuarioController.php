@@ -11,7 +11,6 @@ use Carbon\Carbon;
 use App\Http\Requests\UsuarioRequest;
 use Illuminate\Support\Facades\Storage;
 use App\Traits\HasPermissionMiddleware;
-use Symfony\Component\HttpFoundation\Response;
 
 class UsuarioController extends Controller
 {
@@ -43,10 +42,7 @@ class UsuarioController extends Controller
             $imagename = $slug . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
             $imagePath = 'usuarios/' . $imagename;
 
-            // Subida a S3 (aunque privada)
             Storage::disk('s3')->put($imagePath, file_get_contents($image));
-
-            // Guardar solo el path relativo
             $imageUrl = $imagePath;
         } else {
             $imageUrl = null;
@@ -122,18 +118,17 @@ class UsuarioController extends Controller
         }
     }
 
-    // ✅ NUEVO MÉTODO para mostrar imagen desde S3
+
     public function mostrarImagen($filename)
     {
         $path = 'usuarios/' . $filename;
 
-        if (!Storage::disk('s3')->exists($path)) {
+        try {
+            $file = Storage::disk('s3')->get($path);
+            $mime = Storage::disk('s3')->mimeType($path);
+            return response($file, 200)->header('Content-Type', $mime);
+        } catch (\Exception $e) {
             abort(404, 'Imagen no encontrada.');
         }
-
-        $file = Storage::disk('s3')->get($path);
-        $mime = Storage::disk('s3')->mimeType($path);
-
-        return response($file, 200)->header('Content-Type', $mime);
     }
 }
