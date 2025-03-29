@@ -98,7 +98,6 @@ class UsuarioController extends Controller
             $imagePath = 'usuarios/' . $imagename;
 
             Storage::disk('s3')->put($imagePath, file_get_contents($image));
-
             $user->photo = $imagePath;
             $user->save();
         }
@@ -118,17 +117,25 @@ class UsuarioController extends Controller
         }
     }
 
-
+    // Mostrar imagen desde S3 con logging
     public function mostrarImagen($filename)
     {
         $path = 'usuarios/' . $filename;
 
         try {
+            if (!Storage::disk('s3')->exists($path)) {
+                \Log::warning("Imagen no encontrada en S3: $path");
+                abort(404, 'Imagen no encontrada.');
+            }
+
             $file = Storage::disk('s3')->get($path);
             $mime = Storage::disk('s3')->mimeType($path);
+
             return response($file, 200)->header('Content-Type', $mime);
+
         } catch (\Exception $e) {
-            abort(404, 'Imagen no encontrada.');
+            \Log::error("Error al cargar imagen desde S3: {$e->getMessage()} - Archivo: $path");
+            abort(500, 'Error al cargar la imagen.');
         }
     }
 }
