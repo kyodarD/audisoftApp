@@ -26,8 +26,8 @@ Auth::routes(['verify' => true]);
 
 // Ruta personalizada para verificar el correo (esta es la clave)
 Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])
-    ->middleware(['signed'])
     ->name('verification.verify');
+
 
 // Rutas protegidas por autenticación y verificación
 Route::middleware(['auth', 'verified'])->group(function () {
