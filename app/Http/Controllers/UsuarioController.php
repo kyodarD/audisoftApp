@@ -27,7 +27,8 @@ class UsuarioController extends Controller
 
         foreach ($users as $user) {
             if ($user->photo) {
-                $user->public_url = 'https://' . env('AWS_BUCKET') . '.s3.amazonaws.com/' . $user->photo;
+                $filename = basename($user->photo);
+                $user->public_url = route('imagen.usuario', $filename);
             } else {
                 $user->public_url = null;
             }
@@ -123,6 +124,21 @@ class UsuarioController extends Controller
             return response()->json(['success' => 'Estado actualizado correctamente.']);
         } else {
             return response()->json(['error' => 'Usuario no encontrado.'], 404);
+        }
+    }
+
+    public function mostrarImagen($filename)
+    {
+        $path = 'public/usuarios/' . $filename;
+
+        try {
+            $file = Storage::disk('s3')->get($path);
+            $mime = Storage::disk('s3')->mimeType($path);
+
+            return response($file, 200)->header('Content-Type', $mime);
+        } catch (\Exception $e) {
+            \Log::error("No se pudo mostrar la imagen: " . $e->getMessage());
+            abort(404, 'Imagen no encontrada');
         }
     }
 }

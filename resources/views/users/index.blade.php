@@ -46,12 +46,8 @@
                                         <td>{{ $user->name }}</td>
                                         <td>{{ $user->email }}</td>
                                         <td class="text-center">
-                                            @if ($user->photo)
-                                                @php
-                                                    $publicUrl = 'https://' . env('AWS_BUCKET') . '.s3.amazonaws.com/' . $user->photo;
-                                                @endphp
-
-                                                <img src="{{ $publicUrl }}"
+                                            @if ($user->public_url)
+                                                <img src="{{ $user->public_url }}"
                                                     alt="Foto de {{ $user->name }}"
                                                     title="{{ $user->name }}"
                                                     class="img-thumbnail"
@@ -61,7 +57,7 @@
                                                 @if(config('app.debug'))
                                                     <br>
                                                     <small style="font-size: 10px;">
-                                                        <a href="{{ $publicUrl }}" target="_blank">{{ $publicUrl }}</a>
+                                                        <a href="{{ $user->public_url }}" target="_blank">{{ $user->public_url }}</a>
                                                     </small>
                                                 @endif
                                             @else
