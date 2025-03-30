@@ -52,15 +52,6 @@
                                                     class="img-thumbnail"
                                                     style="height: 70px; width: 70px; object-fit: cover;"
                                                     onerror="this.onerror=null;this.src='https://via.placeholder.com/70?text=No+Img';">
-
-                                                @if(config('app.debug'))
-                                                    <br>
-                                                    <small style="font-size: 10px;">
-                                                        <a href="{{ route('imagen.usuario', basename($user->photo)) }}" target="_blank">
-                                                            {{ basename($user->photo) }}
-                                                        </a>
-                                                    </small>
-                                                @endif
                                             @else
                                                 <span class="badge badge-secondary">Sin Foto</span>
                                             @endif

@@ -22,10 +22,7 @@
                             <form action="{{ route('empleados.store') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
 
-                                <!-- Campo oculto registradopor -->
                                 <input type="hidden" name="registradopor" value="{{ auth()->id() }}">
-                                
-                                <!-- Campo oculto estado -->
                                 <input type="hidden" name="estado" value="activo">
 
                                 <div class="row">
@@ -45,9 +42,7 @@
                                                     </option>
                                                 @endforeach
                                             </select>
-                                            @error('user_id')
-                                                <div class="text-danger">{{ $message }}</div>
-                                            @enderror
+                                            @error('user_id') <div class="text-danger">{{ $message }}</div> @enderror
                                         </div>
 
                                         <!-- Nombre -->
@@ -55,9 +50,7 @@
                                             <label for="nombre">Nombre</label>
                                             <input type="text" name="nombre" id="nombre" class="form-control"
                                                    value="{{ old('nombre') }}" required readonly>
-                                            @error('nombre')
-                                                <div class="text-danger">{{ $message }}</div>
-                                            @enderror
+                                            @error('nombre') <div class="text-danger">{{ $message }}</div> @enderror
                                         </div>
 
                                         <!-- Email -->
@@ -65,9 +58,7 @@
                                             <label for="email">Email</label>
                                             <input type="email" name="email" id="email" class="form-control"
                                                    value="{{ old('email') }}" required readonly>
-                                            @error('email')
-                                                <div class="text-danger">{{ $message }}</div>
-                                            @enderror
+                                            @error('email') <div class="text-danger">{{ $message }}</div> @enderror
                                         </div>
 
                                         <!-- Cédula -->
@@ -75,9 +66,7 @@
                                             <label for="cedula">Cédula</label>
                                             <input type="text" name="cedula" id="cedula" class="form-control"
                                                    value="{{ old('cedula') }}" required maxlength="20">
-                                            @error('cedula')
-                                                <div class="text-danger">{{ $message }}</div>
-                                            @enderror
+                                            @error('cedula') <div class="text-danger">{{ $message }}</div> @enderror
                                         </div>
 
                                         <!-- Teléfono -->
@@ -85,9 +74,7 @@
                                             <label for="telefono">Teléfono</label>
                                             <input type="text" name="telefono" id="telefono" class="form-control"
                                                    value="{{ old('telefono') }}" required>
-                                            @error('telefono')
-                                                <div class="text-danger">{{ $message }}</div>
-                                            @enderror
+                                            @error('telefono') <div class="text-danger">{{ $message }}</div> @enderror
                                         </div>
 
                                         <!-- Dirección -->
@@ -95,9 +82,7 @@
                                             <label for="direccion">Dirección</label>
                                             <input type="text" name="direccion" id="direccion" class="form-control"
                                                    value="{{ old('direccion') }}">
-                                            @error('direccion')
-                                                <div class="text-danger">{{ $message }}</div>
-                                            @enderror
+                                            @error('direccion') <div class="text-danger">{{ $message }}</div> @enderror
                                         </div>
                                     </div>
 
@@ -107,9 +92,7 @@
                                             <label for="cargo">Cargo</label>
                                             <input type="text" name="cargo" id="cargo" class="form-control"
                                                    value="{{ old('cargo') }}" required>
-                                            @error('cargo')
-                                                <div class="text-danger">{{ $message }}</div>
-                                            @enderror
+                                            @error('cargo') <div class="text-danger">{{ $message }}</div> @enderror
                                         </div>
 
                                         <!-- Salario -->
@@ -117,9 +100,7 @@
                                             <label for="salario">Salario</label>
                                             <input type="number" name="salario" id="salario" class="form-control"
                                                    value="{{ old('salario') }}" required step="0.01" min="0">
-                                            @error('salario')
-                                                <div class="text-danger">{{ $message }}</div>
-                                            @enderror
+                                            @error('salario') <div class="text-danger">{{ $message }}</div> @enderror
                                         </div>
 
                                         <!-- Rol -->
@@ -134,9 +115,7 @@
                                                     </option>
                                                 @endforeach
                                             </select>
-                                            @error('role_id')
-                                                <div class="text-danger">{{ $message }}</div>
-                                            @enderror
+                                            @error('role_id') <div class="text-danger">{{ $message }}</div> @enderror
                                         </div>
 
                                         <!-- País -->
@@ -148,9 +127,7 @@
                                                     <option value="{{ $pais->id }}">{{ $pais->nombre }}</option>
                                                 @endforeach
                                             </select>
-                                            @error('pais_id')
-                                                <div class="text-danger">{{ $message }}</div>
-                                            @enderror
+                                            @error('pais_id') <div class="text-danger">{{ $message }}</div> @enderror
                                         </div>
 
                                         <!-- Departamento -->
@@ -159,9 +136,7 @@
                                             <select name="departamento_id" id="departamento_id" class="form-control" required>
                                                 <option value="">Seleccione un departamento</option>
                                             </select>
-                                            @error('departamento_id')
-                                                <div class="text-danger">{{ $message }}</div>
-                                            @enderror
+                                            @error('departamento_id') <div class="text-danger">{{ $message }}</div> @enderror
                                         </div>
 
                                         <!-- Ciudad -->
@@ -170,18 +145,15 @@
                                             <select name="ciudad_id" id="ciudad_id" class="form-control" required>
                                                 <option value="">Seleccione una ciudad</option>
                                             </select>
-                                            @error('ciudad_id')
-                                                <div class="text-danger">{{ $message }}</div>
-                                            @enderror
+                                            @error('ciudad_id') <div class="text-danger">{{ $message }}</div> @enderror
                                         </div>
 
                                         <!-- Foto -->
                                         <div class="form-group">
                                             <label for="photo">Foto</label>
-                                            <input type="file" name="photo" id="photo" class="form-control-file">
-                                            @error('photo')
-                                                <div class="text-danger">{{ $message }}</div>
-                                            @enderror
+                                            <input type="file" name="photo" id="photo" class="form-control-file" accept="image/*"
+                                                   title="Formatos permitidos: JPG, PNG. Tamaño recomendado: máximo 2MB">
+                                            @error('photo') <div class="text-danger">{{ $message }}</div> @enderror
                                         </div>
                                     </div>
                                 </div>
@@ -200,11 +172,10 @@
     </section>
 </div>
 
-<!-- Scripts para autocompletar y dependientes -->
+<!-- JS dinámico -->
 <script>
 document.getElementById("user_id").addEventListener("change", function () {
     let selectedUser = this.options[this.selectedIndex];
-
     document.getElementById("nombre").value = selectedUser.getAttribute("data-nombre") || "";
     document.getElementById("email").value = selectedUser.getAttribute("data-email") || "";
 

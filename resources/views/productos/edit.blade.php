@@ -69,13 +69,13 @@
                                     <div class="col-lg-4 col-sm-4 col-md-4 col-xs-12">
                                         <div class="form-group label-floating">
                                             <label class="control-label">Precio <strong style="color:red;">(*)</strong></label>
-                                            <input type="text" class="form-control" name="precio" placeholder="" autocomplete="off" value="{{ $producto->precio }}">
+                                            <input type="number" class="form-control" name="precio" placeholder="" autocomplete="off" value="{{ $producto->precio }}" step="0.01">
                                         </div>
                                     </div>
                                     <div class="col-lg-4 col-sm-4 col-md-4 col-xs-12">
                                         <div class="form-group label-floating">
                                             <label class="control-label">Stock <strong style="color:red;">(*)</strong></label>
-                                            <input type="text" class="form-control" name="stock" placeholder="" autocomplete="off" value="{{ $producto->stock }}">
+                                            <input type="number" class="form-control" name="stock" placeholder="" autocomplete="off" value="{{ $producto->stock }}">
                                         </div>
                                     </div>
                                     <div class="col-lg-4 col-sm-4 col-md-4 col-xs-12">
@@ -91,8 +91,8 @@
                                     <div class="form-group label-floating">
                                         <label class="control-label">Imagen <strong style="color:red;">(*)</strong></label>
                                         <input type="file" class="form-control" name="img" accept="image/*" autocomplete="off">
-                                        @if ($producto->img != null)
-                                            <img src="{{ asset('uploads/productos/'.$producto->img) }}" alt="{{ $producto->nombre }}" style="width:100px; height:auto;" />
+                                        @if ($producto->img)
+                                            <img src="{{ Storage::disk('s3')->url($producto->img) }}" alt="{{ $producto->nombre }}" style="width:100px; height:auto;" />
                                         @else                                              
                                             <span>No image</span>
                                         @endif
@@ -120,4 +120,5 @@
         </div>
     </section>
 </div>
+
 @endsection

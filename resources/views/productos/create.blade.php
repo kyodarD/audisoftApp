@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','Crear Producto')
+@section('title', 'Crear Producto')
 
 @section('content')
 
@@ -26,12 +26,15 @@
                                     <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
                                         <div class="form-group label-floating">
                                             <label class="control-label">Categoría <strong style="color:red;">(*)</strong></label>
-                                            <select class="form-control" name="categoria_id" id="categoria">
-                                                <option value>Seleccione Categoría</option>
+                                            <select class="form-control" name="categoria_id" id="categoria" required>
+                                                <option value="">Seleccione Categoría</option>
                                                 @foreach($categorias as $categoria)
                                                     <option value="{{ $categoria->id }}">{{ $categoria->nombre }}</option>
                                                 @endforeach
                                             </select>
+                                            @error('categoria_id') 
+                                                <div class="text-danger">{{ $message }}</div> 
+                                            @enderror
                                         </div>
                                     </div>
 
@@ -39,12 +42,15 @@
                                     <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
                                         <div class="form-group label-floating">
                                             <label class="control-label">Proveedor <strong style="color:red;">(*)</strong></label>
-                                            <select class="form-control" name="proveedor_id" id="proveedor">
-                                                <option value>Seleccione Proveedor</option>
+                                            <select class="form-control" name="proveedor_id" id="proveedor" required>
+                                                <option value="">Seleccione Proveedor</option>
                                                 @foreach($proveedores as $proveedor)
                                                     <option value="{{ $proveedor->id }}">{{ $proveedor->nombre }}</option>
                                                 @endforeach
                                             </select>
+                                            @error('proveedor_id') 
+                                                <div class="text-danger">{{ $message }}</div> 
+                                            @enderror
                                         </div>
                                     </div>
                                 </div>
@@ -54,13 +60,19 @@
                                     <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
                                         <div class="form-group label-floating">
                                             <label class="control-label">Nombre <strong style="color:red;">(*)</strong></label>
-                                            <input type="text" class="form-control" name="nombre" placeholder="" autocomplete="off" value="">
+                                            <input type="text" class="form-control" name="nombre" placeholder="" value="{{ old('nombre') }}" required>
+                                            @error('nombre') 
+                                                <div class="text-danger">{{ $message }}</div> 
+                                            @enderror
                                         </div>
                                     </div>
                                     <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
                                         <div class="form-group label-floating">
                                             <label class="control-label">Descripción <strong style="color:red;">(*)</strong></label>
-                                            <input type="text" class="form-control" name="descripcion" placeholder="" autocomplete="off" value="">
+                                            <input type="text" class="form-control" name="descripcion" placeholder="" value="{{ old('descripcion') }}" required>
+                                            @error('descripcion') 
+                                                <div class="text-danger">{{ $message }}</div> 
+                                            @enderror
                                         </div>
                                     </div>
                                 </div>
@@ -68,26 +80,38 @@
                                     <div class="col-lg-4 col-sm-4 col-md-4 col-xs-12">
                                         <div class="form-group label-floating">
                                             <label class="control-label">Precio <strong style="color:red;">(*)</strong></label>
-                                            <input type="text" class="form-control" name="precio" placeholder="" autocomplete="off" value="">
+                                            <input type="number" class="form-control" name="precio" placeholder="" value="{{ old('precio') }}" step="0.01" required>
+                                            @error('precio') 
+                                                <div class="text-danger">{{ $message }}</div> 
+                                            @enderror
                                         </div>
                                     </div>
                                     <div class="col-lg-4 col-sm-4 col-md-4 col-xs-12">
                                         <div class="form-group label-floating">
                                             <label class="control-label">Stock <strong style="color:red;">(*)</strong></label>
-                                            <input type="text" class="form-control" name="stock" placeholder="" autocomplete="off" value="">
+                                            <input type="number" class="form-control" name="stock" placeholder="" value="{{ old('stock') }}" required>
+                                            @error('stock') 
+                                                <div class="text-danger">{{ $message }}</div> 
+                                            @enderror
                                         </div>
                                     </div>
                                     <div class="col-lg-4 col-sm-4 col-md-4 col-xs-12">
                                         <div class="form-group label-floating">
                                             <label class="control-label">Fecha Vencimiento <strong style="color:red;">(*)</strong></label>
-                                            <input type="date" class="form-control" name="fecha_vencimiento" placeholder="" autocomplete="off" value="{{ old('fecha_vencimiento') }}">
+                                            <input type="date" class="form-control" name="fecha_vencimiento" placeholder="" value="{{ old('fecha_vencimiento') }}" required>
+                                            @error('fecha_vencimiento') 
+                                                <div class="text-danger">{{ $message }}</div> 
+                                            @enderror
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-lg-12 col-sm-12 col-md-12 col-xs-12">
                                     <div class="form-group label-floating">
                                         <label class="control-label">Imagen <strong style="color:red;">(*)</strong></label>
-                                        <input type="file" class="form-control" name="img" accept="image/*" autocomplete="off">
+                                        <input type="file" class="form-control" name="img" accept="image/*" required>
+                                        @error('img') 
+                                            <div class="text-danger">{{ $message }}</div> 
+                                        @enderror
                                     </div>
                                 </div>
                                 <input type="hidden" class="form-control" name="estado" value="1">
@@ -110,4 +134,5 @@
         </div>
     </section>
 </div>
+
 @endsection

@@ -65,8 +65,12 @@ class EmpleadoController extends Controller
                 $imagename = 'empleado-' . uniqid() . '.' . $image->getClientOriginalExtension();
                 $path = 'empleados/' . $imagename;
 
-                Storage::disk('s3')->put($path, file_get_contents($image));
-                $validated['photo'] = $path;
+                try {
+                    Storage::disk('s3')->put($path, file_get_contents($image), 'private');
+                    $validated['photo'] = $path;
+                } catch (Exception $e) {
+                    Log::error("Error al subir imagen del empleado: " . $e->getMessage());
+                }
             }
 
             $empleado = Empleado::create($validated);
@@ -111,8 +115,12 @@ class EmpleadoController extends Controller
                 $imagename = 'empleado-' . uniqid() . '.' . $image->getClientOriginalExtension();
                 $path = 'empleados/' . $imagename;
 
-                Storage::disk('s3')->put($path, file_get_contents($image));
-                $validated['photo'] = $path;
+                try {
+                    Storage::disk('s3')->put($path, file_get_contents($image), 'private');
+                    $validated['photo'] = $path;
+                } catch (Exception $e) {
+                    Log::error("Error al actualizar imagen del empleado: " . $e->getMessage());
+                }
             }
 
             $empleado->update($validated);
@@ -170,11 +178,13 @@ class EmpleadoController extends Controller
 
             return response($file, 200)->header('Content-Type', $mime);
         } catch (Exception $e) {
-            Log::error("[mostrarImagen] Error al mostrar imagen '{$path}': " . $e->getMessage());
+            Log::error("Error al obtener imagen del empleado '{$path}': " . $e->getMessage());
+
             return response()->json([
-                'error' => 'No se pudo acceder a la imagen',
-                'mensaje' => $e->getMessage()
-            ], 500);
+                'error' => 'No se pudo acceder a la imagen del empleado.',
+                'mensaje' => $e->getMessage(),
+                'path' => $path
+            ], 404);
         }
     }
 }

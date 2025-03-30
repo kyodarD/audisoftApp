@@ -59,7 +59,7 @@ class ProductoController extends Controller
                 $path = 'productos/' . $imagename;
 
                 try {
-                    Storage::disk('s3')->put($path, file_get_contents($image));
+                    Storage::disk('s3')->put($path, file_get_contents($image), 'private');
                     Log::info("Imagen subida correctamente: {$path}");
                     $imagePath = $path;
                 } catch (Exception $e) {
@@ -95,7 +95,7 @@ class ProductoController extends Controller
                 $path = 'productos/' . $imagename;
 
                 try {
-                    Storage::disk('s3')->put($path, file_get_contents($image));
+                    Storage::disk('s3')->put($path, file_get_contents($image), 'private');
                     Log::info("Imagen actualizada en S3: {$path}");
                     $imagePath = $path;
                 } catch (Exception $e) {
