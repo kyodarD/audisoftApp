@@ -52,7 +52,6 @@ class UsuarioController extends Controller
             $imagename = $slug . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
             $imagePath = 'public/usuarios/' . $imagename;
 
-            // Subida a S3 (aunque pongas 'public', el archivo sigue siendo privado)
             Storage::disk('s3')->put($imagePath, file_get_contents($image));
             $imageUrl = $imagePath;
         } else {
@@ -128,19 +127,22 @@ class UsuarioController extends Controller
         }
     }
 
-    // Método para servir imágenes privadas desde S3
     public function mostrarImagen($filename)
     {
         $path = 'public/usuarios/' . $filename;
+
+        \Log::info("[mostrarImagen] Intentando acceder a: {$path}");
 
         try {
             $file = Storage::disk('s3')->get($path);
             $mime = Storage::disk('s3')->mimeType($path);
 
+            \Log::info("[mostrarImagen] Imagen encontrada, devolviendo archivo.");
+
             return response($file, 200)->header('Content-Type', $mime);
         } catch (\Exception $e) {
-            \Log::error("No se pudo mostrar la imagen: " . $e->getMessage());
-            abort(404, 'Imagen no encontrada');
+            \Log::error("[mostrarImagen] Error al obtener imagen '{$path}': " . $e->getMessage());
+            abort(404, 'Imagen no encontrada o acceso denegado.');
         }
     }
 }
