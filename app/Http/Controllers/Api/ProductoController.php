@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Producto;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductoController extends Controller
 {
@@ -19,13 +20,15 @@ class ProductoController extends Controller
 
         // Formatear respuesta
         $productos = $productos->map(function ($producto) {
+            // Modificar la forma en que se devuelve la URL de la imagen
+            $imageUrl = $producto->img ? route('imagen.producto', ['filename' => basename($producto->img)]) : null;
             return [
                 'id' => $producto->id,
                 'nombre' => $producto->nombre,
                 'descripcion' => $producto->descripcion,
                 'precio' => $producto->precio,
                 'stock' => $producto->stock,
-                'img' => url('uploads/productos/' . $producto->img),
+                'img' => $imageUrl, // Utiliza la ruta para acceder a la imagen
                 'categoria' => $producto->categoria->nombre ?? null,
             ];
         });
@@ -42,15 +45,39 @@ class ProductoController extends Controller
             return response()->json(['mensaje' => 'Producto no encontrado'], 404);
         }
 
+        // Obtener la URL de la imagen
+        $imageUrl = $producto->img ? route('imagen.producto', ['filename' => basename($producto->img)]) : null;
+
         return response()->json([
             'id' => $producto->id,
             'nombre' => $producto->nombre,
             'descripcion' => $producto->descripcion,
             'precio' => $producto->precio,
             'stock' => $producto->stock,
-            'img' => url('uploads/productos/' . $producto->img),
+            'img' => $imageUrl, // Devuelve la URL de la imagen
             'categoria' => $producto->categoria->nombre ?? null,
         ]);
+    }
+
+    // Mostrar la imagen del producto
+    public function mostrarImagen($filename)
+    {
+        $path = 'productos/' . $filename;
+
+        try {
+            $file = Storage::disk('s3')->get($path);
+            $mime = Storage::disk('s3')->mimeType($path);
+
+            return response($file, 200)->header('Content-Type', $mime);
+        } catch (\Exception $e) {
+            \Log::error("Error al obtener imagen de producto '{$path}': " . $e->getMessage());
+
+            return response()->json([
+                'error' => 'No se pudo acceder a la imagen del producto.',
+                'mensaje' => $e->getMessage(),
+                'path' => $path
+            ], 404);
+        }
     }
 
     // Crear un nuevo producto (store)
