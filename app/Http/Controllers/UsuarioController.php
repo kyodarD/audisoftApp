@@ -143,6 +143,14 @@ class UsuarioController extends Controller
         \Log::info("[mostrarImagen] Intentando acceder a: {$path}");
 
         try {
+            if (!Storage::disk('s3')->exists($path)) {
+                \Log::warning("[mostrarImagen] Imagen no encontrada en S3: {$path}");
+                return response()->json([
+                    'error' => 'No se encontró la imagen en S3.',
+                    'path' => $path
+                ], 404);
+            }
+
             $file = Storage::disk('s3')->get($path);
             $mime = Storage::disk('s3')->mimeType($path);
 
@@ -150,8 +158,13 @@ class UsuarioController extends Controller
 
             return response($file, 200)->header('Content-Type', $mime);
         } catch (\Exception $e) {
-            \Log::error("[mostrarImagen] Error al obtener imagen '{$path}': " . $e->getMessage());
-            abort(404, 'Imagen no encontrada o acceso denegado.');
+            \Log::error("[mostrarImagen] Error inesperado: " . $e->getMessage());
+
+            return response()->json([
+                'error' => 'Excepción al acceder a la imagen.',
+                'mensaje' => $e->getMessage(),
+                'path' => $path
+            ], 500);
         }
     }
 }
