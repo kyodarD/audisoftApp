@@ -46,9 +46,10 @@
                                     <h4>Imagen del Producto</h4>
                                     @if($producto->img)
                                         @php
-                                            $filename = basename($producto->img);
+                                            $filename = basename($producto->img); // solo el nombre
+                                            $imgUrl = route('imagen.producto', ['filename' => $filename]);
                                         @endphp
-                                        <img src="{{ route('imagen.producto', $filename) }}" 
+                                        <img src="{{ $imgUrl }}" 
                                              alt="Imagen del producto" 
                                              class="img-fluid rounded" 
                                              style="max-height: 300px;"

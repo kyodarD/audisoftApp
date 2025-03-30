@@ -14,7 +14,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use App\Traits\HasPermissionMiddleware;
-use Symfony\Component\HttpFoundation\Response;
 
 class ProductoController extends Controller
 {
@@ -28,6 +27,16 @@ class ProductoController extends Controller
     public function index()
     {
         $productos = Producto::with(['categoria', 'proveedor'])->get();
+
+        foreach ($productos as $producto) {
+            if ($producto->img) {
+                $filename = basename($producto->img);
+                $producto->public_url = route('imagen.producto', $filename);
+            } else {
+                $producto->public_url = null;
+            }
+        }
+
         return view('productos.index', compact('productos'));
     }
 
@@ -43,16 +52,19 @@ class ProductoController extends Controller
         try {
             $image = $request->file('img');
             $slug = Str::slug($request->nombre);
+            $imagePath = null;
 
             if ($image) {
                 $imagename = $slug . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
                 $path = 'productos/' . $imagename;
 
-                Storage::disk('s3')->put($path, file_get_contents($image));
-
-                $imagePath = $path;
-            } else {
-                $imagePath = null;
+                try {
+                    Storage::disk('s3')->put($path, file_get_contents($image));
+                    Log::info("Imagen subida correctamente: {$path}");
+                    $imagePath = $path;
+                } catch (Exception $e) {
+                    Log::error("Error al subir imagen: " . $e->getMessage());
+                }
             }
 
             Producto::create(array_merge($request->all(), ['img' => $imagePath]));
@@ -76,16 +88,19 @@ class ProductoController extends Controller
         try {
             $image = $request->file('img');
             $slug = Str::slug($request->nombre);
+            $imagePath = $producto->img;
 
             if ($image) {
                 $imagename = $slug . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
                 $path = 'productos/' . $imagename;
 
-                Storage::disk('s3')->put($path, file_get_contents($image));
-
-                $imagePath = $path;
-            } else {
-                $imagePath = $producto->img;
+                try {
+                    Storage::disk('s3')->put($path, file_get_contents($image));
+                    Log::info("Imagen actualizada en S3: {$path}");
+                    $imagePath = $path;
+                } catch (Exception $e) {
+                    Log::error("Error al actualizar imagen en S3: " . $e->getMessage());
+                }
             }
 
             $producto->update(array_merge($request->all(), ['img' => $imagePath]));
@@ -149,18 +164,23 @@ class ProductoController extends Controller
         }
     }
 
-    // ✅ Mostrar imagen desde S3 privado
     public function mostrarImagen($filename)
     {
         $path = 'productos/' . $filename;
 
-        if (!Storage::disk('s3')->exists($path)) {
-            abort(404, 'Imagen no encontrada.');
+        try {
+            $file = Storage::disk('s3')->get($path);
+            $mime = Storage::disk('s3')->mimeType($path);
+
+            return response($file, 200)->header('Content-Type', $mime);
+        } catch (Exception $e) {
+            Log::error("Error al obtener imagen de producto '{$path}': " . $e->getMessage());
+
+            return response()->json([
+                'error' => 'No se pudo acceder a la imagen del producto.',
+                'mensaje' => $e->getMessage(),
+                'path' => $path
+            ], 404);
         }
-
-        $file = Storage::disk('s3')->get($path);
-        $mime = Storage::disk('s3')->mimeType($path);
-
-        return response($file, 200)->header('Content-Type', $mime);
     }
 }

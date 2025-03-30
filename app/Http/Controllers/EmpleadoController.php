@@ -29,6 +29,16 @@ class EmpleadoController extends Controller
     public function index()
     {
         $empleados = Empleado::with(['user', 'role', 'ciudad.departamento.pais'])->get();
+
+        foreach ($empleados as $empleado) {
+            if ($empleado->photo) {
+                $filename = basename($empleado->photo);
+                $empleado->public_url = route('imagen.empleado', $filename);
+            } else {
+                $empleado->public_url = null;
+            }
+        }
+
         return view('empleados.index', compact('empleados'));
     }
 
@@ -55,9 +65,8 @@ class EmpleadoController extends Controller
                 $imagename = 'empleado-' . uniqid() . '.' . $image->getClientOriginalExtension();
                 $path = 'empleados/' . $imagename;
 
-                Storage::disk('s3')->put($path, file_get_contents($image)); // sin 'public'
-
-                $validated['photo'] = $path; // Guardamos solo el path
+                Storage::disk('s3')->put($path, file_get_contents($image));
+                $validated['photo'] = $path;
             }
 
             $empleado = Empleado::create($validated);
@@ -102,8 +111,7 @@ class EmpleadoController extends Controller
                 $imagename = 'empleado-' . uniqid() . '.' . $image->getClientOriginalExtension();
                 $path = 'empleados/' . $imagename;
 
-                Storage::disk('s3')->put($path, file_get_contents($image)); // sin 'public'
-
+                Storage::disk('s3')->put($path, file_get_contents($image));
                 $validated['photo'] = $path;
             }
 
@@ -148,18 +156,25 @@ class EmpleadoController extends Controller
         return view('empleados.show', compact('empleado'));
     }
 
-    // ✅ NUEVO MÉTODO para mostrar imagen desde S3 privado
     public function mostrarImagen($filename)
     {
         $path = 'empleados/' . $filename;
 
-        if (!Storage::disk('s3')->exists($path)) {
-            abort(404, 'Imagen no encontrada.');
+        try {
+            if (!Storage::disk('s3')->exists($path)) {
+                abort(404, 'Imagen no encontrada.');
+            }
+
+            $file = Storage::disk('s3')->get($path);
+            $mime = Storage::disk('s3')->mimeType($path);
+
+            return response($file, 200)->header('Content-Type', $mime);
+        } catch (Exception $e) {
+            Log::error("[mostrarImagen] Error al mostrar imagen '{$path}': " . $e->getMessage());
+            return response()->json([
+                'error' => 'No se pudo acceder a la imagen',
+                'mensaje' => $e->getMessage()
+            ], 500);
         }
-
-        $file = Storage::disk('s3')->get($path);
-        $mime = Storage::disk('s3')->mimeType($path);
-
-        return response($file, 200)->header('Content-Type', $mime);
     }
 }
