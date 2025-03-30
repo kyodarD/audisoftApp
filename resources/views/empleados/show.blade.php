@@ -1,90 +1,71 @@
 @extends('layouts.app')
 
-@section('title', 'Detalle del Empleado')
+@section('title', 'Detalle de Producto')
 
 @section('content')
 <div class="content-wrapper">
     <section class="content-header">
-        <div class="container-fluid"></div>
+        <div class="container-fluid">
+            <h1>Detalle de Producto</h1>
+        </div>
     </section>
+
+    @include('layouts.partial.msg')
 
     <section class="content">
         <div class="container-fluid">
-            <div class="row justify-content-center">
+            <div class="row">
                 <div class="col-12">
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-secondary text-white">
-                            <h4 class="mb-0">@yield('title')</h4>
+                    <div class="card">
+
+                        <div class="card-header bg-secondary">
+                            <h3 class="card-title">Producto #{{ $producto->id }} - {{ $producto->nombre }}</h3>
                         </div>
 
                         <div class="card-body">
-
-                            <!-- Información Personal -->
-                            <h6 class="text-primary border-bottom pb-1 mb-2">Información Personal</h6>
-                            <div class="row py-2">
-                                <div class="col-md-4 mb-2"><strong>Usuario:</strong> {{ $empleado->user->name ?? 'N/A' }}</div>
-                                <div class="col-md-4 mb-2"><strong>Nombre:</strong> {{ $empleado->nombre }}</div>
-                                <div class="col-md-4 mb-2"><strong>Email:</strong> {{ $empleado->email }}</div>
-                                <div class="col-md-4 mb-2"><strong>Cédula:</strong> {{ $empleado->cedula }}</div>
-                                <div class="col-md-4 mb-2"><strong>Teléfono:</strong> {{ $empleado->telefono }}</div>
-                                <div class="col-md-4 mb-2"><strong>Dirección:</strong> {{ $empleado->direccion ?? 'No especificada' }}</div>
-                            </div>
-
-                            <!-- Información Laboral -->
-                            <h6 class="text-primary border-bottom pb-1 mt-3 mb-2">Información Laboral</h6>
-                            <div class="row py-2">
-                                <div class="col-md-4 mb-2"><strong>Cargo:</strong> {{ $empleado->cargo }}</div>
-                                <div class="col-md-4 mb-2"><strong>Salario:</strong> ${{ number_format($empleado->salario, 2) }}</div>
-                                <div class="col-md-4 mb-2">
-                                    <strong>Estado:</strong>
-                                    @if($empleado->estado === 'activo')
-                                        <span class="badge badge-success">Activo</span>
-                                    @else
-                                        <span class="badge badge-danger">Inactivo</span>
-                                    @endif
+                            <div class="row">
+                                <!-- Información del producto -->
+                                <div class="col-lg-6 col-sm-12">
+                                    <p><strong>Categoría:</strong> {{ $producto->categoria->nombre ?? 'Sin categoría' }}</p>
+                                    <p><strong>Proveedor:</strong> {{ $producto->proveedor->nombre ?? 'Sin proveedor' }}</p>
+                                    <p><strong>Descripción:</strong> {{ $producto->descripcion }}</p>
+                                    <p><strong>Precio:</strong> ${{ number_format($producto->precio, 2) }}</p>
+                                    <p><strong>Stock Disponible:</strong> {{ $producto->stock }}</p>
+                                    <p><strong>Fecha de Vencimiento:</strong> {{ \Carbon\Carbon::parse($producto->fecha_vencimiento)->format('d/m/Y') }}</p>
+                                    <p><strong>Estado:</strong>
+                                        @if($producto->estado)
+                                            <span class="badge badge-success">Activo</span>
+                                        @else
+                                            <span class="badge badge-danger">Inactivo</span>
+                                        @endif
+                                    </p>
                                 </div>
-                                <div class="col-md-4 mb-2">
-                                    <strong>Rol:</strong>
-                                    @if($empleado->role)
-                                        <span class="badge badge-primary">{{ $empleado->role->name }}</span>
-                                    @else
-                                        <span class="badge badge-secondary">No asignado</span>
-                                    @endif
-                                </div>
-                                <div class="col-md-4 mb-2"><strong>Registrado por:</strong> {{ $empleado->registradoPor->name ?? 'N/A' }}</div>
-                            </div>
 
-                            <!-- Ubicación -->
-                            <h6 class="text-primary border-bottom pb-1 mt-3 mb-2">Ubicación</h6>
-                            <div class="row py-2">
-                                <div class="col-md-4 mb-2"><strong>Ciudad:</strong> {{ $empleado->ciudad->nombre ?? 'N/A' }}</div>
-                                <div class="col-md-4 mb-2"><strong>Departamento:</strong> {{ $empleado->ciudad->departamento->nombre ?? 'N/A' }}</div>
-                                <div class="col-md-4 mb-2"><strong>País:</strong> {{ $empleado->ciudad->departamento->pais->nombre ?? 'N/A' }}</div>
-                            </div>
-
-                            <!-- Foto -->
-                            @if($empleado->photo)
-                                <h6 class="text-primary border-bottom pb-1 mt-3 mb-2">Foto</h6>
-                                <div class="row">
-                                    <div class="col-md-3 mt-2">
+                                <!-- Imagen del producto desde S3 -->
+                                <div class="col-lg-6 col-sm-12 text-center">
+                                    <h4>Imagen del Producto</h4>
+                                    @if($producto->img)
                                         @php
-                                            $filename = basename($empleado->photo);
+                                            // Genera la URL de la imagen desde S3 usando el controlador
+                                            $filename = basename($producto->img); // Obtiene el nombre del archivo
+                                            $imgUrl = route('imagen.producto', $filename); // Ruta para obtener la imagen
                                         @endphp
-                                        <img src="{{ route('imagen.empleado', $filename) }}" alt="Foto del empleado"
-                                             class="img-thumbnail shadow-sm rounded"
-                                             style="max-width: 100%;"
+                                        <img src="{{ $imgUrl }}" 
+                                             alt="Imagen del producto" 
+                                             class="img-fluid rounded" 
+                                             style="max-height: 300px;"
                                              onerror="this.onerror=null;this.src='https://via.placeholder.com/300x300?text=No+Img';">
-                                    </div>
+                                    @else
+                                        <p class="text-muted">No hay imagen disponible.</p>
+                                    @endif
                                 </div>
-                            @endif
-
-                            <!-- Botones -->
-                            <div class="d-flex justify-content-end mt-4">
-                                <a href="{{ route('empleados.index') }}" class="btn btn-secondary mr-2">Volver</a>
-                                <a href="{{ route('empleados.edit', $empleado->id) }}" class="btn btn-primary">Editar</a>
                             </div>
-
                         </div>
+
+                        <div class="card-footer">
+                            <a href="{{ route('productos.index') }}" class="btn btn-secondary">Volver al Listado</a>
+                        </div>
+
                     </div>
                 </div>
             </div>

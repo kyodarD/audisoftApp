@@ -21,7 +21,7 @@ class ProductoController extends Controller
         // Formatear respuesta
         $productos = $productos->map(function ($producto) {
             // Modificar la forma en que se devuelve la URL de la imagen
-            $imageUrl = $producto->img ? route('imagen.producto', ['filename' => basename($producto->img)]) : null;
+            $imageUrl = $producto->img ? route('imagen.producto', ['producto' => $producto->id, 'filename' => basename($producto->img)]) : null;
             return [
                 'id' => $producto->id,
                 'nombre' => $producto->nombre,
@@ -46,7 +46,7 @@ class ProductoController extends Controller
         }
 
         // Obtener la URL de la imagen
-        $imageUrl = $producto->img ? route('imagen.producto', ['filename' => basename($producto->img)]) : null;
+        $imageUrl = $producto->img ? route('imagen.producto', ['producto' => $producto->id, 'filename' => basename($producto->img)]) : null;
 
         return response()->json([
             'id' => $producto->id,
@@ -60,7 +60,7 @@ class ProductoController extends Controller
     }
 
     // Mostrar la imagen del producto
-    public function mostrarImagen($filename)
+    public function mostrarImagen($producto, $filename)
     {
         $path = 'productos/' . $filename;
 
