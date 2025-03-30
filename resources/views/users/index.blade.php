@@ -47,8 +47,8 @@
                                         <td class="text-center">
                                             @if ($user->public_url)
                                                 <img src="{{ $user->public_url }}"
-                                                    alt="Foto de {{ $user->name }}"
-                                                    title="{{ $user->name }}"
+                                                    alt="Foto de {{ e($user->name) }}"
+                                                    title="{{ e($user->name) }}"
                                                     class="img-thumbnail"
                                                     style="height: 70px; width: 70px; object-fit: cover;"
                                                     onerror="this.onerror=null;this.src='https://via.placeholder.com/70?text=No+Img';">
