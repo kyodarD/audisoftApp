@@ -27,8 +27,7 @@ class UsuarioController extends Controller
 
         foreach ($users as $user) {
             if ($user->photo) {
-                $filename = basename($user->photo);
-                $user->public_url = route('imagen.usuario', $filename);
+                $user->public_url = 'https://' . env('BUCKETEER_BUCKET_NAME') . '.s3.amazonaws.com/' . $user->photo;
             } else {
                 $user->public_url = null;
             }
@@ -52,7 +51,8 @@ class UsuarioController extends Controller
             $imagename = $slug . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
             $imagePath = 'public/usuarios/' . $imagename;
 
-            Storage::disk('s3')->put($imagePath, file_get_contents($image));
+            // Subir con ACL: public-read
+            Storage::disk('s3')->put($imagePath, file_get_contents($image), 'public');
             $imageUrl = $imagePath;
         } else {
             $imageUrl = null;
@@ -107,7 +107,9 @@ class UsuarioController extends Controller
             $imagename = Str::slug($request->name) . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
             $imagePath = 'public/usuarios/' . $imagename;
 
-            Storage::disk('s3')->put($imagePath, file_get_contents($image));
+            // Subir con ACL: public-read
+            Storage::disk('s3')->put($imagePath, file_get_contents($image), 'public');
+
             $user->photo = $imagePath;
             $user->save();
         }
@@ -127,6 +129,7 @@ class UsuarioController extends Controller
         }
     }
 
+    // Este método ya no se necesita, pero lo dejamos por si deseas usarlo como proxy privado.
     public function mostrarImagen($filename)
     {
         $path = 'public/usuarios/' . $filename;

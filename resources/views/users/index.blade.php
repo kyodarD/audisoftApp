@@ -3,7 +3,6 @@
 @section('title','Listado De Usuarios')
 
 @section('content')
-
 <div class="content-wrapper">
     <section class="content-header" style="text-align: right;">
         <div class="container-fluid"></div>
@@ -107,5 +106,4 @@
         </div>
     </section>
 </div>
-
 @endsection
