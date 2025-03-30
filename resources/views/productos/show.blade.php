@@ -46,8 +46,9 @@
                                     <h4>Imagen del Producto</h4>
                                     @if($producto->img)
                                         @php
-                                            // Genera la URL de la imagen desde S3
-                                            $imgUrl = Storage::disk('s3')->url($producto->img);
+                                            // Genera la URL de la imagen desde S3 usando el controlador
+                                            $filename = basename($producto->img); // Obtiene el nombre del archivo
+                                            $imgUrl = route('imagen.producto', $filename); // Ruta para obtener la imagen
                                         @endphp
                                         <img src="{{ $imgUrl }}" 
                                              alt="Imagen del producto" 
