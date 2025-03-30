@@ -32,6 +32,9 @@ Route::get('ventas/{venta}', [VentaController::class, 'show']);
 Route::post('ventas', [VentaController::class, 'store']);
 Route::put('ventas/{venta}', [VentaController::class, 'update']);
 Route::delete('ventas/{venta}', [VentaController::class, 'destroy']);
+
 // Rutas para obtener imágenes de productos
+
 Route::get('productos/{producto}/imagen', [ProductoController::class, 'mostrarImagen'])->name('producto.imagen');
+
 

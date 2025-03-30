@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -21,14 +20,14 @@ class ProductoController extends Controller
         // Formatear respuesta
         $productos = $productos->map(function ($producto) {
             // Modificar la forma en que se devuelve la URL de la imagen
-            $imageUrl = $producto->img ? route('imagen.producto', ['producto' => $producto->id, 'filename' => basename($producto->img)]) : null;
+            $imageUrl = $producto->img ? url('productos/' . basename($producto->img) . '/imagen') : null;
             return [
                 'id' => $producto->id,
                 'nombre' => $producto->nombre,
                 'descripcion' => $producto->descripcion,
                 'precio' => $producto->precio,
                 'stock' => $producto->stock,
-                'img' => $imageUrl, // Utiliza la ruta para acceder a la imagen
+                'img' => $imageUrl, // Utiliza la ruta correcta para acceder a la imagen
                 'categoria' => $producto->categoria->nombre ?? null,
             ];
         });
@@ -46,7 +45,7 @@ class ProductoController extends Controller
         }
 
         // Obtener la URL de la imagen
-        $imageUrl = $producto->img ? route('imagen.producto', ['producto' => $producto->id, 'filename' => basename($producto->img)]) : null;
+        $imageUrl = $producto->img ? url('productos/' . basename($producto->img) . '/imagen') : null;
 
         return response()->json([
             'id' => $producto->id,
@@ -54,17 +53,18 @@ class ProductoController extends Controller
             'descripcion' => $producto->descripcion,
             'precio' => $producto->precio,
             'stock' => $producto->stock,
-            'img' => $imageUrl, // Devuelve la URL de la imagen
+            'img' => $imageUrl, // Devuelve la URL de la imagen en el formato correcto
             'categoria' => $producto->categoria->nombre ?? null,
         ]);
     }
 
     // Mostrar la imagen del producto
-    public function mostrarImagen($producto, $filename)
+    public function mostrarImagen($filename)
     {
         $path = 'productos/' . $filename;
 
         try {
+            // Intenta obtener la imagen desde S3
             $file = Storage::disk('s3')->get($path);
             $mime = Storage::disk('s3')->mimeType($path);
 
@@ -79,81 +79,5 @@ class ProductoController extends Controller
             ], 404);
         }
     }
-
-    // Crear un nuevo producto (store)
-    public function store(Request $request)
-    {
-        $request->validate([
-            'nombre'      => 'required|string|max:255',
-            'descripcion' => 'required|string|max:1000',
-            'precio'      => 'required|numeric',
-            'stock'       => 'required|integer',
-            'img'         => 'required|string',
-            'categoria_id'=> 'required|integer|exists:categorias,id',
-        ]);
-
-        $producto = Producto::create([
-            'nombre'      => $request->nombre,
-            'descripcion' => $request->descripcion,
-            'precio'      => $request->precio,
-            'stock'       => $request->stock,
-            'img'         => $request->img,  // Aquí asumo que `img` es solo una URL o nombre de archivo
-            'categoria_id'=> $request->categoria_id,
-            'estado'      => 1  // Por defecto, el producto está activo
-        ]);
-
-        return response()->json([
-            'mensaje' => 'Producto creado correctamente',
-            'producto' => $producto
-        ], 201);
-    }
-
-    // Actualizar un producto (update)
-    public function update(Request $request, $id)
-    {
-        $producto = Producto::find($id);
-
-        if (!$producto) {
-            return response()->json(['mensaje' => 'Producto no encontrado'], 404);
-        }
-
-        // Validación de los datos
-        $request->validate([
-            'nombre'      => 'required|string|max:255',
-            'descripcion' => 'required|string|max:1000',
-            'precio'      => 'required|numeric',
-            'stock'       => 'required|integer',
-            'img'         => 'nullable|string',
-            'categoria_id'=> 'required|integer|exists:categorias,id',
-        ]);
-
-        // Actualizar los datos del producto
-        $producto->update([
-            'nombre'      => $request->nombre,
-            'descripcion' => $request->descripcion,
-            'precio'      => $request->precio,
-            'stock'       => $request->stock,
-            'img'         => $request->img ?? $producto->img,  // Si no se pasa una imagen, se deja la original
-            'categoria_id'=> $request->categoria_id,
-        ]);
-
-        return response()->json([
-            'mensaje' => 'Producto actualizado correctamente',
-            'producto' => $producto
-        ]);
-    }
-
-    // Eliminar un producto (destroy)
-    public function destroy($id)
-    {
-        $producto = Producto::find($id);
-
-        if (!$producto) {
-            return response()->json(['mensaje' => 'Producto no encontrado'], 404);
-        }
-
-        $producto->delete();
-
-        return response()->json(['mensaje' => 'Producto eliminado correctamente']);
-    }
 }
+
