@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SliderController;
 use App\Http\Controllers\UsuarioController;
@@ -33,7 +33,16 @@ Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'
 Route::middleware(['auth', 'verified'])->group(function () {
 
     // Rutas para mostrar imágenes privadas
-  
+    Route::get('/verificar-s3', function () {
+        try {
+            Storage::disk('s3')->put('verificacion.txt', '✅ Laravel puede escribir en S3');
+    
+            return '✅ Laravel está conectado correctamente a S3. Archivo "verificacion.txt" subido.';
+        } catch (\Exception $e) {
+            return '❌ Error al conectar con S3: ' . $e->getMessage();
+        }
+    });
+
     Route::get('/usuarios/imagen/{filename}', [UsuarioController::class, 'mostrarImagen'])->name('imagen.usuario');
 
     // Route::get('/empleados/imagen/{filename}', [EmpleadoController::class, 'mostrarImagen'])->name('imagen.empleado');
