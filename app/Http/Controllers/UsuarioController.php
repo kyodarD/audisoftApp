@@ -47,22 +47,19 @@ class UsuarioController extends Controller
     {
         $image = $request->file('photo');
         $slug = Str::slug($request->name);
+        $imageUrl = null;
 
         if ($image) {
             $imagename = $slug . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
             $imagePath = 'public/usuarios/' . $imagename;
 
-            Storage::disk('s3')->put($imagePath, file_get_contents($image));
-
-            if (Storage::disk('s3')->exists($imagePath)) {
-                \Log::info("✅ Imagen subida correctamente: {$imagePath}");
+            try {
+                Storage::disk('s3')->put($imagePath, file_get_contents($image));
+                \Log::info("✅ Imagen subida a S3: {$imagePath}");
                 $imageUrl = $imagePath;
-            } else {
-                \Log::error("❌ No se pudo subir imagen: {$imagePath}");
-                $imageUrl = null;
+            } catch (\Exception $e) {
+                \Log::error("❌ Error al subir imagen a S3: " . $e->getMessage());
             }
-        } else {
-            $imageUrl = null;
         }
 
         $user = User::create([
@@ -114,14 +111,13 @@ class UsuarioController extends Controller
             $imagename = Str::slug($request->name) . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
             $imagePath = 'public/usuarios/' . $imagename;
 
-            Storage::disk('s3')->put($imagePath, file_get_contents($image));
-
-            if (Storage::disk('s3')->exists($imagePath)) {
+            try {
+                Storage::disk('s3')->put($imagePath, file_get_contents($image));
                 \Log::info("✅ Imagen actualizada en S3: {$imagePath}");
                 $user->photo = $imagePath;
                 $user->save();
-            } else {
-                \Log::error("❌ Falló actualización de imagen en S3: {$imagePath}");
+            } catch (\Exception $e) {
+                \Log::error("❌ Error al actualizar imagen en S3: " . $e->getMessage());
             }
         }
 
