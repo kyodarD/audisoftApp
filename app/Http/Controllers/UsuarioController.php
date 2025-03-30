@@ -53,7 +53,14 @@ class UsuarioController extends Controller
             $imagePath = 'public/usuarios/' . $imagename;
 
             Storage::disk('s3')->put($imagePath, file_get_contents($image));
-            $imageUrl = $imagePath;
+
+            if (Storage::disk('s3')->exists($imagePath)) {
+                \Log::info("✅ Imagen subida correctamente: {$imagePath}");
+                $imageUrl = $imagePath;
+            } else {
+                \Log::error("❌ No se pudo subir imagen: {$imagePath}");
+                $imageUrl = null;
+            }
         } else {
             $imageUrl = null;
         }
@@ -108,8 +115,14 @@ class UsuarioController extends Controller
             $imagePath = 'public/usuarios/' . $imagename;
 
             Storage::disk('s3')->put($imagePath, file_get_contents($image));
-            $user->photo = $imagePath;
-            $user->save();
+
+            if (Storage::disk('s3')->exists($imagePath)) {
+                \Log::info("✅ Imagen actualizada en S3: {$imagePath}");
+                $user->photo = $imagePath;
+                $user->save();
+            } else {
+                \Log::error("❌ Falló actualización de imagen en S3: {$imagePath}");
+            }
         }
 
         return redirect()->route('users.index')->with('successMsg', 'El usuario se actualizó exitosamente');
