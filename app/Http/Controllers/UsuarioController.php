@@ -50,11 +50,11 @@ class UsuarioController extends Controller
         $imageUrl = null;
 
         if ($image) {
-            $imagename = $slug . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
-            $imagePath = 'public/usuarios/' . $imagename;
+            $imagename = $slug . '-' . now()->format('Y-m-d') . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $imagePath = 'usuarios/' . $imagename; // quitamos "public/"
 
             try {
-                Storage::disk('s3')->put($imagePath, file_get_contents($image));
+                Storage::disk('s3')->put($imagePath, file_get_contents($image), 'private');
                 \Log::info("✅ Imagen subida a S3: {$imagePath}");
                 $imageUrl = $imagePath;
             } catch (\Exception $e) {
@@ -108,11 +108,11 @@ class UsuarioController extends Controller
 
         if ($request->hasFile('photo')) {
             $image = $request->file('photo');
-            $imagename = Str::slug($request->name) . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
-            $imagePath = 'public/usuarios/' . $imagename;
+            $imagename = Str::slug($request->name) . '-' . now()->format('Y-m-d') . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $imagePath = 'usuarios/' . $imagename;
 
             try {
-                Storage::disk('s3')->put($imagePath, file_get_contents($image));
+                Storage::disk('s3')->put($imagePath, file_get_contents($image), 'private');
                 \Log::info("✅ Imagen actualizada en S3: {$imagePath}");
                 $user->photo = $imagePath;
                 $user->save();
@@ -137,27 +137,21 @@ class UsuarioController extends Controller
     }
 
     public function mostrarImagen($filename)
-{
-    $path = 'public/usuarios/' . $filename;
+    {
+        $path = 'usuarios/' . $filename;
 
-    \Log::info("[mostrarImagen] Intentando acceder a: {$path}");
+        try {
+            $file = Storage::disk('s3')->get($path);
+            $mime = Storage::disk('s3')->mimeType($path);
+            return response($file, 200)->header('Content-Type', $mime);
+        } catch (\Exception $e) {
+            \Log::error("[mostrarImagen] Error al acceder a '{$path}': " . $e->getMessage());
 
-    try {
-        $file = Storage::disk('s3')->get($path);
-        $mime = Storage::disk('s3')->mimeType($path);
-
-        \Log::info("[mostrarImagen] Imagen encontrada, devolviendo archivo.");
-
-        return response($file, 200)->header('Content-Type', $mime);
-    } catch (\Exception $e) {
-        \Log::error("[mostrarImagen] Error inesperado al acceder a '{$path}': " . $e->getMessage());
-
-        return response()->json([
-            'error' => 'No se pudo acceder a la imagen en S3.',
-            'mensaje' => $e->getMessage(),
-            'path' => $path
-        ], 404);
+            return response()->json([
+                'error' => 'No se pudo acceder a la imagen en S3.',
+                'mensaje' => $e->getMessage(),
+                'path' => $path
+            ], 404);
+        }
     }
-}
-
 }

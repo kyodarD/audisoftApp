@@ -45,8 +45,8 @@
                                         <td>{{ $user->name }}</td>
                                         <td>{{ $user->email }}</td>
                                         <td class="text-center">
-                                            @if ($user->public_url)
-                                                <img src="{{ $user->public_url }}"
+                                            @if ($user->photo)
+                                                <img src="{{ route('imagen.usuario', basename($user->photo)) }}"
                                                     alt="Foto de {{ e($user->name) }}"
                                                     title="{{ e($user->name) }}"
                                                     class="img-thumbnail"
@@ -56,7 +56,9 @@
                                                 @if(config('app.debug'))
                                                     <br>
                                                     <small style="font-size: 10px;">
-                                                        <a href="{{ $user->public_url }}" target="_blank">{{ $user->public_url }}</a>
+                                                        <a href="{{ route('imagen.usuario', basename($user->photo)) }}" target="_blank">
+                                                            {{ basename($user->photo) }}
+                                                        </a>
                                                     </small>
                                                 @endif
                                             @else
