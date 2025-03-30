@@ -137,34 +137,27 @@ class UsuarioController extends Controller
     }
 
     public function mostrarImagen($filename)
-    {
-        $path = 'public/usuarios/' . $filename;
+{
+    $path = 'public/usuarios/' . $filename;
 
-        \Log::info("[mostrarImagen] Intentando acceder a: {$path}");
+    \Log::info("[mostrarImagen] Intentando acceder a: {$path}");
 
-        try {
-            if (!Storage::disk('s3')->exists($path)) {
-                \Log::warning("[mostrarImagen] Imagen no encontrada en S3: {$path}");
-                return response()->json([
-                    'error' => 'No se encontró la imagen en S3.',
-                    'path' => $path
-                ], 404);
-            }
+    try {
+        $file = Storage::disk('s3')->get($path);
+        $mime = Storage::disk('s3')->mimeType($path);
 
-            $file = Storage::disk('s3')->get($path);
-            $mime = Storage::disk('s3')->mimeType($path);
+        \Log::info("[mostrarImagen] Imagen encontrada, devolviendo archivo.");
 
-            \Log::info("[mostrarImagen] Imagen encontrada, devolviendo archivo.");
+        return response($file, 200)->header('Content-Type', $mime);
+    } catch (\Exception $e) {
+        \Log::error("[mostrarImagen] Error inesperado al acceder a '{$path}': " . $e->getMessage());
 
-            return response($file, 200)->header('Content-Type', $mime);
-        } catch (\Exception $e) {
-            \Log::error("[mostrarImagen] Error inesperado: " . $e->getMessage());
-
-            return response()->json([
-                'error' => 'Excepción al acceder a la imagen.',
-                'mensaje' => $e->getMessage(),
-                'path' => $path
-            ], 500);
-        }
+        return response()->json([
+            'error' => 'No se pudo acceder a la imagen en S3.',
+            'mensaje' => $e->getMessage(),
+            'path' => $path
+        ], 404);
     }
+}
+
 }
