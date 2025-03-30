@@ -27,17 +27,9 @@ class UsuarioController extends Controller
 
         foreach ($users as $user) {
             if ($user->photo) {
-                try {
-                    $user->temp_image_url = Storage::disk('s3')->temporaryUrl(
-                        $user->photo,
-                        now()->addMinutes(10)
-                    );
-                } catch (\Exception $e) {
-                    \Log::warning("No se pudo generar URL para: " . $user->photo);
-                    $user->temp_image_url = null;
-                }
+                $user->public_url = 'https://' . env('AWS_BUCKET') . '.s3.amazonaws.com/' . $user->photo;
             } else {
-                $user->temp_image_url = null;
+                $user->public_url = null;
             }
         }
 
@@ -57,7 +49,7 @@ class UsuarioController extends Controller
 
         if ($image) {
             $imagename = $slug . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
-            $imagePath = 'usuarios/' . $imagename;
+            $imagePath = 'public/usuarios/' . $imagename;
 
             Storage::disk('s3')->put($imagePath, file_get_contents($image));
             $imageUrl = $imagePath;
@@ -112,7 +104,7 @@ class UsuarioController extends Controller
         if ($request->hasFile('photo')) {
             $image = $request->file('photo');
             $imagename = Str::slug($request->name) . '-' . Carbon::now()->toDateString() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
-            $imagePath = 'usuarios/' . $imagename;
+            $imagePath = 'public/usuarios/' . $imagename;
 
             Storage::disk('s3')->put($imagePath, file_get_contents($image));
             $user->photo = $imagePath;

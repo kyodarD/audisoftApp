@@ -19,7 +19,6 @@
                         <div class="card-header bg-secondary" style="font-size: 1.75rem;font-weight: 500;">
                             @yield('title')
 
-                            {{-- Botón "Crear Usuario", protegido por "crear usuarios" --}}
                             @can('crear usuarios')
                                 <a href="{{ route('users.create') }}" class="btn btn-primary float-right" title="Nuevo Usuario">
                                     <i class="fas fa-plus nav-icon"></i>
@@ -47,18 +46,22 @@
                                         <td>{{ $user->name }}</td>
                                         <td>{{ $user->email }}</td>
                                         <td class="text-center">
-                                            @if ($user->photo && $user->temp_image_url)
-                                                <img src="{{ $user->temp_image_url }}"
+                                            @if ($user->photo)
+                                                @php
+                                                    $publicUrl = 'https://' . env('AWS_BUCKET') . '.s3.amazonaws.com/' . $user->photo;
+                                                @endphp
+
+                                                <img src="{{ $publicUrl }}"
                                                     alt="Foto de {{ $user->name }}"
                                                     title="{{ $user->name }}"
                                                     class="img-thumbnail"
                                                     style="height: 70px; width: 70px; object-fit: cover;"
                                                     onerror="this.onerror=null;this.src='https://via.placeholder.com/70?text=No+Img';">
-                                                
+
                                                 @if(config('app.debug'))
                                                     <br>
                                                     <small style="font-size: 10px;">
-                                                        <a href="{{ $user->temp_image_url }}" target="_blank">{{ $user->temp_image_url }}</a>
+                                                        <a href="{{ $publicUrl }}" target="_blank">{{ $publicUrl }}</a>
                                                     </small>
                                                 @endif
                                             @else
